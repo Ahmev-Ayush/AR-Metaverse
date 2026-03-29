@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Desktop Streamer</title>
+</head>
+<body>
+    <h2>Desktop Screen Sender</h2>
+    <video id="localVideo" autoplay playsinline muted style="width: 400px; border: 1px solid black;"></video>
+    <br><br>
+    <button id="startBtn">1. Start Screen Capture</button>
+    <button id="connectBtn" disabled>2. Send to Unity</button>
+
+    <!-- Include Unity's Render Streaming JS library -->
+    <script type="text/javascript" src="https://unpkg.com/@unity/webrtc@3.0.0-pre.4/dist/unity-webrtc.js"></script>
+    <script>
+        let localStream;
+        let peerConnection;
+        // Connect to the local signaling server via WebSocket
+        // const ws = new WebSocket('ws://127.0.0.1:80');      // Localhost with HTTP
+        // const ws = new WebSocket('wss://127.0.0.1:443');    // Localhost with HTTPS
+        const ws = new WebSocket('ws://192.170.2.137:80');  // Local Network with HTTP
+        // const ws = new WebSocket('ws://192.170.2.137:443'); // Local Network with HTTPS
+
+        document.getElementById('startBtn').onclick = async () => {
+            try {
+                // This forces the browser to ask you which Screen/Window to share
+                localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                document.getElementById('localVideo').srcObject = localStream;
+                document.getElementById('connectBtn').disabled = false;
+            } catch (e) {
+                console.error("Screen capture failed:", e);
+            }
+        };
+
+        document.getElementById('connectBtn').onclick = async () => {
+            // Setup WebRTC connection
+            peerConnection = new RTCPeerConnection();
+            
+            // Add the screen video track to the connection
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            // Handle ICE Candidates
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    ws.send(JSON.stringify({ 
+                        type: 'candidate', 
+                        from: 'ScreenStream',
+                        connectionId: 'ScreenStream',
+                        data: {
+                            candidate: event.candidate.candidate,
+                            sdpMid: event.candidate.sdpMid,
+                            sdpMLineIndex: event.candidate.sdpMLineIndex,
+                            connectionId: 'ScreenStream'
+                        } 
+                    }));
+                }
+            };
+
+            // Create Offer and send to Unity
+            const offer = await peerConnection.createOffer();
+            await peerConnection.setLocalDescription(offer);
+
+            ws.send(JSON.stringify({ 
+                type: 'offer', 
+                from: 'ScreenStream',
+                connectionId: 'ScreenStream',
+                data: {
+                    sdp: peerConnection.localDescription.sdp, 
+                    type: 'offer',
+                    polite: true,
+                    connectionId: 'ScreenStream'
+                }
+            }));
+            console.log("Stream sent to Unity!");
+        };
+
+        // Listen for Unity's answer
+        ws.onmessage = async (message) => {
+            const parsed = JSON.parse(message.data);
+            if (parsed.type === 'answer') {
+                await peerConnection.setRemoteDescription(new RTCSessionDescription({
+                    type: 'answer',
+                    sdp: parsed.data.sdp
+                }));
+            } else if (parsed.type === 'candidate') {
+                await peerConnection.addIceCandidate(new RTCIceCandidate({
+                    candidate: parsed.data.candidate,
+                    sdpMid: parsed.data.sdpMid,
+                    sdpMLineIndex: parsed.data.sdpMLineIndex
+                }));
+            }
+        };
+    </script>
+</body>
+</html>

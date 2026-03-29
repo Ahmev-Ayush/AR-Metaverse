@@ -1,12 +1,20 @@
 using UnityEngine;
 using UnityEngine.UI;
-using UnityEngine.SceneManagement;
+// using UnityEngine.SceneManagement;
 
 public class SwitchBtwScenesScript : MonoBehaviour
 {
     [SerializeField] 
     [Tooltip("Button List")]
     Button exitButton;
+
+    void Awake()
+    {
+        // This prevents the screen from dimming or going to sleep
+        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+    }
+
+    
     void OnEnable()
     {
         if(exitButton != null)
@@ -25,7 +33,7 @@ public class SwitchBtwScenesScript : MonoBehaviour
 
     public void ExitApplication()
     {
-        // Application.Quit();
-        SceneManager.LoadScene("ARMetaverseScene");
+        Application.Quit();
+        // SceneManager.LoadScene("ARMetaverseScene"); 
     }
 }

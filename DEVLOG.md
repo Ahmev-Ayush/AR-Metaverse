@@ -17,5 +17,7 @@
 **What I Did:**
 - Input Action to control the movement of the cube : for remotely controlling the cube from browser using Render Streaming
 - taking input from browser using Input Receiver 
+- using quad to display the laptop's screen in unity
+- setup done : laptop screen display, screen capture using screenshare.html and unity render stream receiving the share to display over quad
 
 <!-- Keep adding entries as you work -->
