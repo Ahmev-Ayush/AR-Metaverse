@@ -131,6 +131,7 @@ GameObject:
   - component: {fileID: 433745024}
   - component: {fileID: 433745023}
   - component: {fileID: 433745022}
+  - component: {fileID: 433745026}
   m_Layer: 0
   m_Name: Cube
   m_TagString: Untagged
@@ -231,6 +232,20 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: -48.9, y: 24.84, z: 8}
+--- !u!114 &433745026
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 433745021}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1da0ea37681956545b6039b69b8489c7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CubeControl
+  moveSpeed: 5
+  rotationSpeed: 100
 --- !u!1 &813481272
 GameObject:
   m_ObjectHideFlags: 0
@@ -248,6 +263,7 @@ GameObject:
   - component: {fileID: 813481277}
   - component: {fileID: 813481280}
   - component: {fileID: 813481281}
+  - component: {fileID: 813481282}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -415,6 +431,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.Broadcast
   streams:
   - {fileID: 813481277}
+  - {fileID: 813481282}
 --- !u!114 &813481279
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -484,6 +501,39 @@ MonoBehaviour:
   closedColor: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   signalingManager: {fileID: 813481279}
   autoRegisterWithManager: 1
+--- !u!114 &813481282
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 813481272}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: decb088abd7ec9747b6e9a1011c046b2, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.InputReceiver
+  local: 0
+  label: 
+  m_Actions: {fileID: -944628639613478452, guid: 7bde7cc2d81baa34c99bef2ecc4f6834, type: 3}
+  m_ActionEvents:
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: a2481636-f52c-46b1-a9cb-e6e6001b04df
+    m_ActionName: 'GamePlay/Grow[/Keyboard/g]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: 299583a6-ffe6-47a9-8565-5e8ec24d697d
+    m_ActionName: 'GamePlay/Move[/Keyboard/w,/Keyboard/s,/Keyboard/a,/Keyboard/d]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: f04800a8-6667-4673-a091-cc44d32e6eb3
+    m_ActionName: 'GamePlay/Rotate[/Keyboard/8,/Keyboard/2,/Keyboard/4,/Keyboard/6]'
+  - m_PersistentCalls:
+      m_Calls: []
+    m_ActionId: dcd8a67c-9f0d-44d2-a088-a8443dfaf704
+    m_ActionName: 'GamePlay/Shrink[/Keyboard/h]'
+  m_DefaultActionMap: GamePlay
 --- !u!1 &876577936
 GameObject:
   m_ObjectHideFlags: 0
@@ -1235,6 +1285,6 @@ SceneRoots:
   m_Roots:
   - {fileID: 813481275}
   - {fileID: 2039658878}
-  - {fileID: 433745025}
   - {fileID: 1141970033}
   - {fileID: 876577939}
+  - {fileID: 433745025}

@@ -11,4 +11,11 @@
 - duplicated ARMetaverseScene => ARMetaverseScene1 : this will have stereoscopic rendering (two cameras) on canvasDisplay
 - duplicated ARMetaverseScene => ARMetaverseScene2 : this will have stereoscopic rendering (two cameras) without canvasDisplay
 
+
+## 🗓️ 29-03-2026
+
+**What I Did:**
+- Input Action to control the movement of the cube : for remotely controlling the cube from browser using Render Streaming
+- taking input from browser using Input Receiver 
+
 <!-- Keep adding entries as you work -->
