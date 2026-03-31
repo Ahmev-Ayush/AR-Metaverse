@@ -210,7 +210,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""up"",
                     ""id"": ""83630aa4-ccba-4fe5-9c17-d2f7a23cc177"",
-                    ""path"": ""<Keyboard>/8"",
+                    ""path"": ""<Keyboard>/i"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -221,7 +221,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""down"",
                     ""id"": ""b2afeae2-e436-4c41-9c3e-b6a916cb875b"",
-                    ""path"": ""<Keyboard>/2"",
+                    ""path"": ""<Keyboard>/k"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -232,7 +232,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""left"",
                     ""id"": ""2b55f9be-1066-437f-83b0-8b0834ecdc44"",
-                    ""path"": ""<Keyboard>/4"",
+                    ""path"": ""<Keyboard>/j"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",
@@ -243,7 +243,7 @@ public partial class @PlayerControls: IInputActionCollection2, IDisposable
                 {
                     ""name"": ""right"",
                     ""id"": ""986a45a9-96c1-4cce-a2f1-c5c355003226"",
-                    ""path"": ""<Keyboard>/6"",
+                    ""path"": ""<Keyboard>/l"",
                     ""interactions"": """",
                     ""processors"": """",
                     ""groups"": """",

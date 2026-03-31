@@ -110,9 +110,6 @@ public class testScript : SignalingHandlerBase,
 		var touchscreen = UnityEngine.InputSystem.Touchscreen.current;
 		if (touchscreen != null && touchscreen.primaryTouch.press.wasPressedThisFrame) return true;
 
-#if ENABLE_LEGACY_INPUT_MANAGER
-		if (Input.touchCount > 0 && Input.GetTouch(0).phase == UnityEngine.TouchPhase.Began) return true;
-#endif
 
 #if UNITY_EDITOR || UNITY_STANDALONE
 		var keyboard = UnityEngine.InputSystem.Keyboard.current;

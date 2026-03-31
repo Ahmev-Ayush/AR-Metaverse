@@ -106,7 +106,8 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
 
     void StopTrackingPlanes()
     {
-        planeManager.enabled = false;
+        // Disable the AR Plane Manager to stop detecting new planes
+        planeManager.enabled = false; 
 
         // Hide all planes currently visible in the scene
         foreach (var plane in planeManager.trackables)

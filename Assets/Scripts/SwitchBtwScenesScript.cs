@@ -15,21 +15,21 @@ public class SwitchBtwScenesScript : MonoBehaviour
     }
 
     
-    void OnEnable()
-    {
-        if(exitButton != null)
-        {
-            exitButton.onClick.AddListener(ExitApplication);
-        }
-    }
+    // void OnEnable()
+    // {
+    //     if(exitButton != null)
+    //     {
+    //         exitButton.onClick.AddListener(ExitApplication);
+    //     }
+    // }
 
-    void OnDisable()
-    {
-        if(exitButton != null)
-        {
-            exitButton.onClick.RemoveListener(ExitApplication);
-        }
-    }
+    // void OnDisable()
+    // {
+    //     if(exitButton != null)
+    //     {
+    //         exitButton.onClick.RemoveListener(ExitApplication);
+    //     }
+    // }
 
     public void ExitApplication()
     {

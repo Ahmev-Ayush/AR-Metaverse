@@ -1,18 +1,17 @@
 using UnityEngine;
 
-
 public class CubeControl : MonoBehaviour
 {
     PlayerControls controls;
-    [SerializeField] private float moveSpeed = 5f; // Amount to move the cube by
+    [SerializeField] private float moveSpeed = 5f;       // Amount to move the cube by
     [SerializeField] private float rotationSpeed = 100f; // Amount to rotate the cube by
 
     void Awake()
     {
         controls = new PlayerControls(); // Create an instance of the PlayerControls class
 
-        controls.GamePlay.Grow.performed += ctx => Grow();
-        controls.GamePlay.Shrink.performed += ctx => Shrink();
+        controls.GamePlay.Grow.performed   += ctx => Grow();    // press G to grow the cube
+        controls.GamePlay.Shrink.performed += ctx => Shrink();  // press H to shrink the cube
 
         // controls.GamePlay.Move.performed += ctx => HandleMovement();
         // controls.GamePlay.Move.canceled  += ctx => HandleMovement();
@@ -31,8 +30,8 @@ public class CubeControl : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HandleMovement(); // Handle movement input
-        HandleRotation(); // Handle rotation input
+        HandleMovement(); // Handle movement input AWSD
+        HandleRotation(); // Handle rotation input JIKL
     }
 
     void HandleMovement()
