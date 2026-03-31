@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.InputSystem.EnhancedTouch;
 using UnityEngine.XR.ARFoundation;
 using UnityEngine.XR.ARSubsystems;
+using Touch = UnityEngine.InputSystem.EnhancedTouch.Touch;
 
 public class PlaceDisplayOnWallScript : MonoBehaviour
 {
@@ -10,7 +11,7 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
     private ARRaycastManager raycastManager;
     private ARPlaneManager planeManager;
     private bool isPlaced = false;
-    static List<ARRaycastHit> hits = new List<ARRaycastHit>();
+    static List<ARRaycastHit> hits = new List<ARRaycastHit>(); // Reusable list to avoid allocations
 
     void OnEnable()
     {
@@ -40,20 +41,20 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
         if (isPlaced) return;
 
         // 2. Check for touch input 
-        if (UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches.Count > 0 && UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[0].phase == UnityEngine.InputSystem.TouchPhase.Began)
+        if (Touch.activeTouches.Count > 0 && Touch.activeTouches[0].phase == UnityEngine.InputSystem.TouchPhase.Began)
         {
-            Vector2 touchPosition = UnityEngine.InputSystem.EnhancedTouch.Touch.activeTouches[0].screenPosition;
+            Vector2 touchPosition = Touch.activeTouches[0].screenPosition;
 
             // 3. Shoot Raycast looking specifically for Planes
             if (raycastManager.Raycast(touchPosition, hits, TrackableType.PlaneWithinPolygon))
             {
                 // Get the hit point
-                var hitPose = hits[0].pose;
-                var hitTrackableId = hits[0].trackableId;
-                var plane = planeManager.GetPlane(hitTrackableId);
+                var hitPose = hits[0].pose;               // first hit is the closest one hit[0]
+                var hitTrackableId = hits[0].trackableId; // get the trackable ID of the hit plane
+                var plane = planeManager.GetPlane(hitTrackableId); // retrieve the ARPlane using the trackable ID
 
                 // 4. Check if the plane is Vertical
-                if (plane.alignment == PlaneAlignment.Vertical)
+                if (plane != null && plane.alignment == PlaneAlignment.Vertical)
                 {
                     PlaceQuad(hitPose);
                 }
