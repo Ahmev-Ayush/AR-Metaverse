@@ -53,7 +53,7 @@ public class ManualStart : MonoBehaviour
     {
         if (signalingManager == null)
         {
-            Debug.LogWarning("ManualStart has no SignalingManager assigned.");
+            // Debug.LogWarning("ManualStart has no SignalingManager assigned.");
             return;
         }
 
@@ -63,7 +63,7 @@ public class ManualStart : MonoBehaviour
         }
 
         signalingManager.Run();
-        Debug.Log("Signaling Started!");
+        // Debug.Log("Signaling Started!");
     }
 
     private bool DidTouchBeginThisFrame()

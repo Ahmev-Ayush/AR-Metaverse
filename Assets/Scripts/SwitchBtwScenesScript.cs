@@ -12,6 +12,9 @@ public class SwitchBtwScenesScript : MonoBehaviour
     {
         // This prevents the screen from dimming or going to sleep
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
+
+        // target framerate is set to 60 for smoother performance, especially important for AR applications
+        Application.targetFrameRate = 30;
     }
 
     

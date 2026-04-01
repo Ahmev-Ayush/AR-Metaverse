@@ -178,7 +178,7 @@ public class testScript : SignalingHandlerBase,
 		{
 			if (!hasWarnedMissingLabel)
 			{
-				Debug.LogWarning($"{nameof(testScript)} on {name} is missing a TextMeshProUGUI reference.");
+				// Debug.LogWarning($"{nameof(testScript)} on {name} is missing a TextMeshProUGUI reference.");
 				hasWarnedMissingLabel = true;
 			}
 			return;
@@ -243,7 +243,7 @@ public class testScript : SignalingHandlerBase,
 
 		if (signalingManager == null)
 		{
-			Debug.LogWarning($"{nameof(testScript)} could not find a SignalingManager to register with.");
+			// Debug.LogWarning($"{nameof(testScript)} could not find a SignalingManager to register with.");
 			return;
 		}
 

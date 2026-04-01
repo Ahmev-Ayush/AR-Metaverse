@@ -10,16 +10,18 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
     [SerializeField] private GameObject targetQuad; // Assign the existing Quad from your scene here
     private ARRaycastManager raycastManager;
     private ARPlaneManager planeManager;
-    private bool isPlaced = false;
+    // private bool isPlaced = false;
     static List<ARRaycastHit> hits = new List<ARRaycastHit>(); // Reusable list to avoid allocations
 
     void OnEnable()
     {
         EnhancedTouchSupport.Enable();
+        Touch.onFingerDown += OnFingerDown; // Subscribe to finger down events
     }
 
     void OnDisable()
     {
+        Touch.onFingerDown -= OnFingerDown; // Unsubscribe from finger down events
         EnhancedTouchSupport.Disable();
     }
 
@@ -29,12 +31,13 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
         raycastManager = FindAnyObjectByType<ARRaycastManager>();
         planeManager   = FindAnyObjectByType<ARPlaneManager>();
         
-        if (raycastManager == null || planeManager == null)
-        {
-            Debug.LogError("Could not find ARRaycastManager or ARPlaneManager in the scene! Ensure they are on your XR Origin.");
-        }
+        // if (raycastManager == null || planeManager == null)
+        // {
+        //     // Debug.LogError("Could not find ARRaycastManager or ARPlaneManager in the scene! Ensure they are on your XR Origin.");
+        // }
     }
 
+    /* // Avoid using Update and raycasting every frame for better performance. Instead, we react to touch events directly.
     void Update()
     {
         // 1. If already placed, do nothing (stops further raycasts)
@@ -83,7 +86,39 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
 #endif
     }
 
-    void PlaceQuad(Pose hitPose)
+    */
+
+    private void OnFingerDown(Finger finger)
+    {
+        PerformRaycast(finger.currentTouch.screenPosition);
+    }
+
+#if UNITY_EDITOR
+    void Update()
+    {
+        if (UnityEngine.InputSystem.Mouse.current != null && UnityEngine.InputSystem.Mouse.current.leftButton.wasPressedThisFrame)
+        {
+            PerformRaycast(UnityEngine.InputSystem.Mouse.current.position.ReadValue());
+        }
+    }
+#endif
+
+    private void PerformRaycast(Vector2 screenPosition)
+    {
+        if(raycastManager.Raycast(screenPosition, hits, TrackableType.PlaneWithinPolygon))
+        {
+            var hitPose = hits[0].pose;
+            var hitTrackableId = hits[0].trackableId;
+            var plane = planeManager.GetPlane(hitTrackableId);
+
+            if (plane != null && plane.alignment == PlaneAlignment.Vertical)
+            {
+                PlaceQuad(hitPose, plane);
+            }
+        }
+    }
+
+    void PlaceQuad(Pose hitPose, ARPlane selectedPlane)
     {
         // Move and activate the existing Quad
         targetQuad.transform.position = hitPose.position;
@@ -99,23 +134,38 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
 
         targetQuad.SetActive(true);
 
-        isPlaced = true;
+        // isPlaced = true;
 
-        // 5. Turn off AR Plane Manager and hide existing planes
-        StopTrackingPlanes();
+        // 5. Turn off AR Plane Manager and delete existing unused planes
+        StopTrackingPlanes(selectedPlane);
+
+        // turn off update of this script
+        // this.enabled = false; // disable this script to stop further raycasts and updates after placement
     }
 
-    void StopTrackingPlanes()
+    void StopTrackingPlanes(ARPlane selectedPlane)
     {
         // Disable the AR Plane Manager to stop detecting new planes
         planeManager.enabled = false; 
 
-        // Hide all planes currently visible in the scene
+        // Delete all planes currently visible in the scene that are not the selected one
         foreach (var plane in planeManager.trackables)
         {
-            plane.gameObject.SetActive(false);
+            if (plane != selectedPlane)
+            {
+                Destroy(plane.gameObject);
+            }
         }
+
+        // foreach (var plane in planeManager.trackables)
+        // {
+        //     plane.gameObject.SetActive(false); // hide the selected plane as well to avoid visual clutter
+        // }
+
+        selectedPlane.gameObject.SetActive(false); // hide the selected plane as well to avoid visual clutter
+
+        raycastManager.enabled = false; // disable raycasting if you no longer need it after placement (optimization purpose)
         
-        Debug.Log("Object placed. Plane tracking disabled.");
+        // Debug.Log("Object placed. Plane tracking disabled.");
     }
 }
