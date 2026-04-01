@@ -20,4 +20,17 @@
 - using quad to display the laptop's screen in unity
 - setup done : laptop screen display, screen capture using screenshare.html and unity render stream receiving the share to display over quad
 
+
+## 🗓️ 01-04-2026
+
+**What I Did:**
+- Optimization started!
+- removed all the updates from ARMetaverse Scene as right targeting optimization of that scene only.
+- set target FPS to 30
+- tried dynamic fps (not impressed!)
+- reduced number of game object present in the ARMetaverse Scene.
+- PlaceDisplayOnWallScript.cs script will turn off right after the placement of the quad (display screen)
+- reducing resolution of screen to reducing heating issue of the android device!
+- DPI changed to FIXED DPI = 320 (for testing!)
+
 <!-- Keep adding entries as you work -->

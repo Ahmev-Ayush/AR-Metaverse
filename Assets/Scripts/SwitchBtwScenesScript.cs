@@ -8,6 +8,10 @@ public class SwitchBtwScenesScript : MonoBehaviour
     [Tooltip("Button List")]
     Button exitButton;
 
+    [Tooltip("Target Height for the application")]
+
+    // In Awake, we set the screen to never sleep and set a target framerate for smoother performance, 
+    // especially important for AR applications.
     void Awake()
     {
         // This prevents the screen from dimming or going to sleep
