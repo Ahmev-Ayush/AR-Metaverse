@@ -90,7 +90,7 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
 
     private void OnFingerDown(Finger finger)
     {
-        PerformRaycast(finger.currentTouch.screenPosition);
+        PerformRaycast(finger.screenPosition);
     }
 
 #if UNITY_EDITOR
@@ -139,8 +139,8 @@ public class PlaceDisplayOnWallScript : MonoBehaviour
         // 5. Turn off AR Plane Manager and delete existing unused planes
         StopTrackingPlanes(selectedPlane);
 
-        // turn off update of this script
-        // this.enabled = false; // disable this script to stop further raycasts and updates after placement
+        // Turn off this script to stop listening to touches and to stop Update calls
+        this.enabled = false; 
     }
 
     void StopTrackingPlanes(ARPlane selectedPlane)

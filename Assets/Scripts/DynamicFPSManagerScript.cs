@@ -1,7 +1,7 @@
 using System.Collections;
 using UnityEngine;
 
-public class DynamicFPSManager : MonoBehaviour
+public class DynamicFPSManagerScript : MonoBehaviour
 {
     [SerializeField] private int activeFPS = 35;
     [SerializeField] private int idleFPS = 15;
