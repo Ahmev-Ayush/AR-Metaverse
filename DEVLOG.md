@@ -33,4 +33,11 @@
 - reducing resolution of screen to reducing heating issue of the android device!
 - DPI changed to FIXED DPI = 320 (for testing!)
 
+
+## 🗓️ 01-04-2026
+
+**What I Did:**
+- ARResolutionControllerscript : to reduce the resolution of the camera feed to reduce cpu usage little (testing!)
+- optimizated enough to work for 5 mins (in between temp changes from 37 to 40 deg celius, on Motorola Edge 60 stylus)
+
 <!-- Keep adding entries as you work -->
