@@ -40,4 +40,12 @@
 - ARResolutionControllerscript : to reduce the resolution of the camera feed to reduce cpu usage little (testing!)
 - optimizated enough to work for 5 mins (in between temp changes from 37 to 40 deg celius, on Motorola Edge 60 stylus)
 
+
+## 🗓️ 08-04-2026
+
+**What I Did:**
+- fixed some issue in connection of web-browser and unity android app (ARMetaverse app)
+- added realtime connection status display box in screenshare.html (public1)
+- changed name of ARMetaverseScene1 and ARMetaverseScene1 to SplitScreenScene1 and SplitScreenScene2
+
 <!-- Keep adding entries as you work -->

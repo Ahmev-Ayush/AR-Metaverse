@@ -8,8 +8,8 @@
     <div id="connectionStatus" style="color: blue;">Status: Ready</div>
     <br>
 
-    <label for="wsAddressInput">Signaling Server (default 192.170.2.137:80):</label>
-    <input id="wsAddressInput" type="text" value="192.170.2.137:80" style="width: 240px;" />
+    <label for="wsAddressInput">Signaling Server (default 192.170.3.208:80):</label>
+    <input id="wsAddressInput" type="text" value="192.170.3.208:80" style="width: 240px;" />
     <button id="applyWsBtn">Apply Server</button>
     <br><br>
     
@@ -25,7 +25,10 @@
         let localStream;
         let peerConnection;
         let ws;
-        const defaultSignalingAddress = "192.170.2.137:80";
+        let hasSentOffer = false;
+        let pendingLocalCandidates = [];
+        let pendingRemoteCandidates = [];
+        const defaultSignalingAddress = "192.170.3.208:80";
 
         const connectionStatus = document.getElementById('connectionStatus');
         const wsAddressInput = document.getElementById('wsAddressInput');
@@ -58,6 +61,30 @@
             connectionStatus.style.color = color;
         }
 
+        function sendCandidateMessage(candidate) {
+            return sendWsMessage({
+                type: 'candidate',
+                from: 'ScreenStream',
+                data: {
+                    candidate: candidate.candidate,
+                    sdpMid: candidate.sdpMid,
+                    sdpMLineIndex: candidate.sdpMLineIndex,
+                    connectionId: 'ScreenStream'
+                }
+            });
+        }
+
+        async function flushPendingRemoteCandidates() {
+            if (!peerConnection || !peerConnection.remoteDescription) {
+                return;
+            }
+
+            while (pendingRemoteCandidates.length > 0) {
+                const candidate = pendingRemoteCandidates.shift();
+                await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
+            }
+        }
+
         function connectWebSocket(inputAddress) {
             const wsUrl = normalizeWsAddress(inputAddress || defaultSignalingAddress);
             wsAddressInput.value = wsUrl.replace(/^wss?:\/\//, "");
@@ -77,17 +104,29 @@
                 const parsed = JSON.parse(message.data);
 
                 if (parsed.type === 'answer') {
+                    if (!peerConnection) {
+                        return;
+                    }
+
                     await peerConnection.setRemoteDescription(new RTCSessionDescription({
                         type: 'answer',
                         sdp: parsed.data.sdp
                     }));
+                    await flushPendingRemoteCandidates();
                     updateStatus("Status: Connected to Unity!", "green");
                 } else if (parsed.type === 'candidate') {
-                    await peerConnection.addIceCandidate(new RTCIceCandidate({
+                    const candidate = {
                         candidate: parsed.data.candidate,
                         sdpMid: parsed.data.sdpMid,
                         sdpMLineIndex: parsed.data.sdpMLineIndex
-                    }));
+                    };
+
+                    if (!peerConnection || !peerConnection.remoteDescription) {
+                        pendingRemoteCandidates.push(candidate);
+                        return;
+                    }
+
+                    await peerConnection.addIceCandidate(new RTCIceCandidate(candidate));
                 }
             };
 
@@ -121,7 +160,8 @@
 
         document.getElementById('startBtn').onclick = async () => {
             try {
-                localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                // localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
+                localStream = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: { ideal: 60, max: 60 }},audio: false});
                 document.getElementById('localVideo').srcObject = localStream;
                 connectBtn.disabled = false;
                 updateStatus("Status: Screen Captured", "blue");
@@ -138,6 +178,9 @@
             }
 
             peerConnection = new RTCPeerConnection();
+            hasSentOffer = false;
+            pendingLocalCandidates = [];
+            pendingRemoteCandidates = [];
             updateStatus("Status: Connecting to Unity...", "blue");
 
             // Add the screen video track
@@ -146,16 +189,12 @@
             // Handle ICE Candidates
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    sendWsMessage({
-                        type: 'candidate', 
-                        from: 'ScreenStream',
-                        data: {
-                            candidate: event.candidate.candidate,
-                            sdpMid: event.candidate.sdpMid,
-                            sdpMLineIndex: event.candidate.sdpMLineIndex,
-                            connectionId: 'ScreenStream'
-                        } 
-                    });
+                    if (!hasSentOffer) {
+                        pendingLocalCandidates.push(event.candidate);
+                        return;
+                    }
+
+                    sendCandidateMessage(event.candidate);
                 }
             };
 
@@ -173,6 +212,12 @@
                     connectionId: 'ScreenStream'
                 }
             });
+
+            hasSentOffer = true;
+            for (const candidate of pendingLocalCandidates) {
+                sendCandidateMessage(candidate);
+            }
+            pendingLocalCandidates = [];
             
             console.log("Offer sent!");
         };

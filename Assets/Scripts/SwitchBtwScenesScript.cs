@@ -8,8 +8,8 @@ public class SwitchBtwScenesScript : MonoBehaviour
     // [Tooltip("Button List")]
     public Button exitButton;
 
-    public GameObject wsSettingPanel;
-    public GameObject showWSSettingPanelButton;
+    // public GameObject wsSettingPanel;
+    // public GameObject showWSSettingPanelButton;
 
 
 
@@ -22,14 +22,18 @@ public class SwitchBtwScenesScript : MonoBehaviour
         // This prevents the screen from dimming or going to sleep
         Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
+
+        // disable vsync to allow the application to run at the target frame rate
+        // QualitySettings.vSyncCount = 0;
+
         // target framerate is set to 60 for smoother performance, especially important for AR applications
-        Application.targetFrameRate = 30;
+        // Application.targetFrameRate = 40; // You can adjust this value based on your performance needs and device capabilities
     }
 
-    void Start()
-    {
-        wsSettingPanel.SetActive(false);
-    }
+    // void Start()
+    // {
+        // wsSettingPanel.SetActive(false);
+    // }
 
     
     // void OnEnable()
@@ -54,17 +58,17 @@ public class SwitchBtwScenesScript : MonoBehaviour
         // SceneManager.LoadScene("ARMetaverseScene"); 
     }
 
-    public void ShowWSSettingPanelButton()
-    {
-        wsSettingPanel.SetActive(true);  // Show the WebSocket settings panel
-        exitButton.interactable = false; // Disable the exit button while the settings panel is active
-        showWSSettingPanelButton.SetActive(false); // Hide the button that shows the settings panel
-    }
+    // public void ShowWSSettingPanelButton()
+    // {
+    //     wsSettingPanel.SetActive(true);  // Show the WebSocket settings panel
+    //     exitButton.interactable = false; // Disable the exit button while the settings panel is active
+    //     showWSSettingPanelButton.SetActive(false); // Hide the button that shows the settings panel
+    // }
 
-    public void CloseWSSettingPanel()
-    {
-        wsSettingPanel.SetActive(false); // Hide the WebSocket settings panel
-        exitButton.interactable = true;  // Re-enable the exit button
-        showWSSettingPanelButton.SetActive(true); // Show the button that shows the settings panel
-    }
+    // public void CloseWSSettingPanel()
+    // {
+    //     wsSettingPanel.SetActive(false); // Hide the WebSocket settings panel
+    //     exitButton.interactable = true;  // Re-enable the exit button
+    //     showWSSettingPanelButton.SetActive(true); // Show the button that shows the settings panel
+    // }
 }

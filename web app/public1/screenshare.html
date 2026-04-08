@@ -6,6 +6,7 @@
 <body>
     <h2>Desktop Screen Sender</h2>
     <div id="connectionStatus" style="color: blue;">Status: Ready</div>
+    <pre id="debugLog" style="width: 95%; max-width: 900px; height: 180px; overflow: auto; border: 1px solid #aaa; padding: 8px; background: #f7f7f7;"></pre>
     <br>
     
     <video id="localVideo" autoplay playsinline muted style="width: 400px; border: 1px solid black; background: #eee;"></video>
@@ -19,33 +20,116 @@
     <script>
         let localStream;
         let peerConnection;
+        let wsOpen = false;
+
+        const statusEl = document.getElementById('connectionStatus');
+        const debugLogEl = document.getElementById('debugLog');
+
+        function logDebug(message, data) {
+            const stamp = new Date().toLocaleTimeString();
+            const line = `[${stamp}] ${message}`;
+            console.log(line, data || '');
+            debugLogEl.textContent += line + (data ? ` ${JSON.stringify(data)}` : '') + "\n";
+            debugLogEl.scrollTop = debugLogEl.scrollHeight;
+        }
+
+        function setStatus(text, color) {
+            statusEl.innerText = text;
+            if (color) statusEl.style.color = color;
+            logDebug(`STATUS -> ${text}`);
+        }
+
+        function sendSignaling(payload) {
+            if (ws.readyState !== WebSocket.OPEN) {
+                logDebug('WS send blocked. Socket not open', { readyState: ws.readyState, type: payload.type });
+                setStatus('Status: WebSocket not open', 'red');
+                return false;
+            }
+
+            ws.send(JSON.stringify(payload));
+            logDebug('WS send', {
+                type: payload.type,
+                from: payload.from,
+                connectionId: payload.data ? payload.data.connectionId : undefined
+            });
+            return true;
+        }
 
         // Change this to your Signaling Server IP
-        const ws = new WebSocket('ws://192.170.2.137:80');
+        const ws = new WebSocket('ws://192.170.3.208:80');
+
+        logDebug('Creating WebSocket', { url: ws.url });
+
+        ws.onopen = () => {
+            wsOpen = true;
+            setStatus('Status: WebSocket connected', 'green');
+            logDebug('WS open', { url: ws.url });
+        };
+
+        ws.onclose = (event) => {
+            wsOpen = false;
+            setStatus('Status: WebSocket closed', 'orange');
+            logDebug('WS close', { code: event.code, reason: event.reason, wasClean: event.wasClean });
+        };
 
         document.getElementById('startBtn').onclick = async () => {
             try {
                 localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
                 document.getElementById('localVideo').srcObject = localStream;
                 document.getElementById('connectBtn').disabled = false;
-                document.getElementById('connectionStatus').innerText = "Status: Screen Captured";
+                setStatus("Status: Screen Captured", "blue");
+                logDebug('Screen capture started', {
+                    tracks: localStream.getTracks().map(t => ({ kind: t.kind, id: t.id, label: t.label }))
+                });
             } catch (e) {
                 console.error("Screen capture failed:", e);
+                logDebug('Screen capture failed', { message: e.message, name: e.name });
                 alert("Capture failed. Make sure you are using HTTPS or localhost.");
             }
         };
 
         document.getElementById('connectBtn').onclick = async () => {
+            if (!localStream) {
+                setStatus('Status: Capture screen first', 'red');
+                logDebug('Connect blocked. localStream is null');
+                return;
+            }
+            if (!wsOpen && ws.readyState !== WebSocket.OPEN) {
+                setStatus('Status: Waiting for WebSocket connection', 'red');
+                logDebug('Connect blocked. WebSocket not open', { readyState: ws.readyState });
+                return;
+            }
+
             peerConnection = new RTCPeerConnection();
-            document.getElementById('connectionStatus').innerText = "Status: Connecting to Unity...";
+            setStatus("Status: Connecting to Unity...", "blue");
+            logDebug('PeerConnection created');
+
+            peerConnection.onconnectionstatechange = () => {
+                logDebug('PC connectionState', { state: peerConnection.connectionState });
+            };
+
+            peerConnection.oniceconnectionstatechange = () => {
+                logDebug('PC iceConnectionState', { state: peerConnection.iceConnectionState });
+            };
+
+            peerConnection.onicegatheringstatechange = () => {
+                logDebug('PC iceGatheringState', { state: peerConnection.iceGatheringState });
+            };
+
+            peerConnection.onsignalingstatechange = () => {
+                logDebug('PC signalingState', { state: peerConnection.signalingState });
+            };
 
             // Add the screen video track
-            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+            localStream.getTracks().forEach(track => {
+                peerConnection.addTrack(track, localStream);
+                logDebug('Track added to PC', { kind: track.kind, id: track.id });
+            });
 
             // Handle ICE Candidates
             peerConnection.onicecandidate = (event) => {
                 if (event.candidate) {
-                    ws.send(JSON.stringify({ 
+                    sendSignaling({ 
                         type: 'candidate', 
                         from: 'ScreenStream',
                         // connectionId: 'ScreenStream',
@@ -55,15 +139,19 @@
                             sdpMLineIndex: event.candidate.sdpMLineIndex,
                             connectionId: 'ScreenStream'
                         } 
-                    }));
+                    });
+                } else {
+                    logDebug('PC onicecandidate completed (null candidate)');
                 }
             };
 
             // Create Offer
             const offer = await peerConnection.createOffer();
+            logDebug('Offer created', { sdpLength: offer.sdp ? offer.sdp.length : 0 });
             await peerConnection.setLocalDescription(offer);
+            logDebug('Local description set', { type: peerConnection.localDescription && peerConnection.localDescription.type });
 
-            ws.send(JSON.stringify({ 
+            sendSignaling({ 
                 type: 'offer', 
                 from: 'ScreenStream',
                 // connectionId: 'ScreenStream',
@@ -73,34 +161,48 @@
                     polite: true,
                     connectionId: 'ScreenStream'
                 }
-            }));
+            });
             
-            console.log("Offer sent!");
+            logDebug('Offer sent');
         };
 
         // Listen for Unity's response
         ws.onmessage = async (message) => {
             const parsed = JSON.parse(message.data);
+            logDebug('WS receive', { type: parsed.type, from: parsed.from });
             
             if (parsed.type === 'answer') {
+                if (!peerConnection) {
+                    logDebug('Answer received before PC exists');
+                    return;
+                }
                 await peerConnection.setRemoteDescription(new RTCSessionDescription({
                     type: 'answer',
                     sdp: parsed.data.sdp
                 }));
-                document.getElementById('connectionStatus').innerText = "Status: Connected to Unity!";
-                document.getElementById('connectionStatus').style.color = "green";
+                logDebug('Remote description set (answer)', { sdpLength: parsed.data && parsed.data.sdp ? parsed.data.sdp.length : 0 });
+                setStatus("Status: Connected to Unity!", "green");
             } else if (parsed.type === 'candidate') {
-                await peerConnection.addIceCandidate(new RTCIceCandidate({
-                    candidate: parsed.data.candidate,
-                    sdpMid: parsed.data.sdpMid,
-                    sdpMLineIndex: parsed.data.sdpMLineIndex
-                }));
+                if (!peerConnection) {
+                    logDebug('Candidate received before PC exists');
+                    return;
+                }
+                try {
+                    await peerConnection.addIceCandidate(new RTCIceCandidate({
+                        candidate: parsed.data.candidate,
+                        sdpMid: parsed.data.sdpMid,
+                        sdpMLineIndex: parsed.data.sdpMLineIndex
+                    }));
+                    logDebug('Remote ICE candidate accepted');
+                } catch (err) {
+                    logDebug('Remote ICE candidate rejected', { message: err.message });
+                }
             }
         };
 
-        ws.onerror = () => {
-            document.getElementById('connectionStatus').innerText = "Status: WebSocket Error (Is signaling server running?)";
-            document.getElementById('connectionStatus').style.color = "red";
+        ws.onerror = (event) => {
+            logDebug('WS error', { type: event.type });
+            setStatus("Status: WebSocket Error (Is signaling server running?)", "red");
         };
     </script>
 </body>
