@@ -27,7 +27,7 @@ public class SwitchBtwScenesScript : MonoBehaviour
         // QualitySettings.vSyncCount = 0;
 
         // target framerate is set to 60 for smoother performance, especially important for AR applications
-        // Application.targetFrameRate = 40; // You can adjust this value based on your performance needs and device capabilities
+        // Application.targetFrameRate = 24; // You can adjust this value based on your performance needs and device capabilities
     }
 
     // void Start()

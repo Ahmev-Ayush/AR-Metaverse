@@ -47,5 +47,6 @@
 - fixed some issue in connection of web-browser and unity android app (ARMetaverse app)
 - added realtime connection status display box in screenshare.html (public1)
 - changed name of ARMetaverseScene1 and ARMetaverseScene1 to SplitScreenScene1 and SplitScreenScene2
+- Created new scene ARMetaverseSceneModified : AR Session Tracking mode = Rotation Only & No plane detection! (highly optimizated for less cpu usage)
 
 <!-- Keep adding entries as you work -->
