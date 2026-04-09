@@ -26,7 +26,17 @@ High-end AR/VR headsets like the Meta Quest 3 and Apple Vision Pro offer incredi
 * `DEVLOG.md`: Tracking ongoing development progress.
 
 ### 🚀 Getting Started
+0. Must install necessary packages like render streaming (check official website [https://docs.unity3d.com/Packages/com.unity.renderstreaming@3.1/manual/index.html]
+)
 1. Open the Unity project (`AR Metaverse`) in Unity Hub with Android Build Support.
 2. Run the signaling server located in the `web app/` directory.
 3. Build the Android `.apk` and deploy it to your ARCore-compatible smartphone to start your spatial workspace!
+4. Open screenshare.html at ./web app\public1 and Enter the IP as shown in web app server.
+5. Ensure the IP is same as Project Settings > Render Streaming > URL. 
 
+### Scenes in the project
+1. ARMetaverseScene (main scene)
+2. ARMetaverseSceneModified 
+3. SplitScreenScene1
+4. SplitScreenScene2
+5. TestStreaming

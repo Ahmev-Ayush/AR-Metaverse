@@ -25,7 +25,7 @@ public class StreamConnectionHandler : MonoBehaviour
     private float firstTextureReceivedAt = -1f;
     private int receivedTextureCount;
     private bool subscribed;
-
+/*
     private void Awake()
     {
         if (verboseLogs)
@@ -76,7 +76,7 @@ public class StreamConnectionHandler : MonoBehaviour
 
         nextHealthLogAt = Time.time + Mathf.Max(1f, healthLogIntervalSeconds);
     }
-
+*/
     private bool streamReceivedLogged = false;
 
     private void Update()

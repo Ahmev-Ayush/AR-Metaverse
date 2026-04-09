@@ -161,7 +161,7 @@
         document.getElementById('startBtn').onclick = async () => {
             try {
                 // localStream = await navigator.mediaDevices.getDisplayMedia({ video: true, audio: false });
-                localStream = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: { ideal: 60, max: 60 }},audio: false});
+                localStream = await navigator.mediaDevices.getDisplayMedia({video: {frameRate: { ideal: 60, max: 60 }},audio: false}); // Request 60fps if possible for smoother streaming
                 document.getElementById('localVideo').srcObject = localStream;
                 connectBtn.disabled = false;
                 updateStatus("Status: Screen Captured", "blue");

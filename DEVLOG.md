@@ -10,6 +10,7 @@
 - used Button.onClick.RemoveListene(/action/) for exit button
 - duplicated ARMetaverseScene => ARMetaverseScene1 : this will have stereoscopic rendering (two cameras) on canvasDisplay
 - duplicated ARMetaverseScene => ARMetaverseScene2 : this will have stereoscopic rendering (two cameras) without canvasDisplay
+- TestStreaming Scene : for unity render streaming tutorial [https://docs.unity3d.com/Packages/com.unity.renderstreaming@3.1/manual/tutorial.html]
 
 
 ## 🗓️ 29-03-2026
@@ -48,5 +49,10 @@
 - added realtime connection status display box in screenshare.html (public1)
 - changed name of ARMetaverseScene1 and ARMetaverseScene1 to SplitScreenScene1 and SplitScreenScene2
 - Created new scene ARMetaverseSceneModified : AR Session Tracking mode = Rotation Only & No plane detection! (highly optimizated for less cpu usage)
+
+## 🗓️ 09-04-2026
+
+**What I Did:**
+- 
 
 <!-- Keep adding entries as you work -->
