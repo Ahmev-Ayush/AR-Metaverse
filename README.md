@@ -8,6 +8,13 @@ High-end AR/VR headsets like the Meta Quest 3 and Apple Vision Pro offer incredi
 
 **AR Metaverse** aims to bring that exact same futuristic, limitless workspace to the hardware people already own: a standard laptop and an Android smartphone. By combining AR tracking with zero-latency WebRTC streaming and virtual display drivers, this project transforms a single-screen laptop into an expansive, multi-monitor AR workstation that floats in your physical room—all at zero cost.
 
+### 🎬 Demo
+![AR Metaverse Workspace Demo](Demos/ARWorkspace.gif)
+
+<video src="Demos/ARWorkspace.mp4" controls width="900"></video>
+(Wait while GIF is loading!)
+If the video does not render on your platform, open it directly here: [ARWorkspace.mp4](Demos/ARWorkspace.mp4)
+
 ### ✨ Core Features
 * **Virtual Multi-Monitor Setup:** Bypasses hardware limitations to create multiple virtual desktop screens from a single laptop.
 * **Zero-Latency Streaming:** Utilizes WebRTC (via Unity Render Streaming) for real-time, peer-to-peer video transmission, ensuring that typing and mouse movements feel instantaneous.
@@ -18,7 +25,6 @@ High-end AR/VR headsets like the Meta Quest 3 and Apple Vision Pro offer incredi
 * **Game Engine:** Unity 3D
 * **AR Framework:** AR Foundation / Google ARCore
 * **Networking:** WebRTC / Unity Render Streaming / Web App
-* **OS Integration:** Virtual Display Drivers (IddSampleDriver)
 
 ### 📂 Project Structure
 * `Assets/`: Unity project assets including AR templates, scripts, scenes, and prefabs.

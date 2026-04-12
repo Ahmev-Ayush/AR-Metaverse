@@ -5,6 +5,11 @@ public class ExitHandlerForAndroidScript : MonoBehaviour
 {
     private InputAction _backButtonAction;
 
+    void Awake()
+    {
+        Screen.sleepTimeout = SleepTimeout.NeverSleep; // Prevent the screen from sleeping
+    }
+
     private void OnEnable()
     {
         // 1. Initialize the action for the Escape key (Android Back button)

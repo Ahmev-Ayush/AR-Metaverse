@@ -53,6 +53,12 @@
 ## 🗓️ 09-04-2026
 
 **What I Did:**
-- 
+- creating VRMetaverseScene : duplicating ARMetaverseSceneModified : to remove AR Camera Background and test its effect on processing
+
+## 🗓️ 12-04-2026
+
+**What I Did:**
+- Demo video added in repo 
+- GIF of demo video in README
 
 <!-- Keep adding entries as you work -->
