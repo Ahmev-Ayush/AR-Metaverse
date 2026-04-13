@@ -61,4 +61,9 @@
 - Demo video added in repo 
 - GIF of demo video in README
 
+## 🗓️ 13-04-2026
+
+**What I Did:**
+- deleting XR Origin Prefab from all scenes, provided new XR Origin Component in each scene
+
 <!-- Keep adding entries as you work -->
