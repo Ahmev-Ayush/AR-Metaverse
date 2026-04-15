@@ -20,7 +20,7 @@ public class SwitchBtwScenesScript : MonoBehaviour
     void Awake()
     {
         // This prevents the screen from dimming or going to sleep
-        Screen.sleepTimeout = SleepTimeout.NeverSleep;
+        // Screen.sleepTimeout = SleepTimeout.NeverSleep;
 
 
         // disable vsync to allow the application to run at the target frame rate

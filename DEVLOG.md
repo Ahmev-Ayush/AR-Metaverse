@@ -66,4 +66,8 @@
 **What I Did:**
 - deleting XR Origin Prefab from all scenes, provided new XR Origin Component in each scene
 
+## 🗓️ 15-04-2026
+
+**What I Did:**
+- modified SplitScreenScene2 for testing on google cardboard
 <!-- Keep adding entries as you work -->
