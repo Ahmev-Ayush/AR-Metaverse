@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>High-Speed Desktop Streamer</title>
+    <style>
+        body { font-family: sans-serif; background: #f0f0f0; padding: 20px; }
+        #localVideo { width: 480px; border: 2px solid #333; background: #000; border-radius: 8px; }
+        .controls { background: white; padding: 15px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        button { padding: 10px 15px; cursor: pointer; font-weight: bold; }
+        #connectionStatus { font-weight: bold; margin-bottom: 10px; }
+    </style>
+</head>
+<body>
+    <h2>🚀 High-Speed Screen Sender</h2>
+    
+    <div class="controls">
+        <div id="connectionStatus" style="color: blue;">Status: Ready</div>
+        
+        <label for="wsAddressInput">Signaling Server:</label>
+        <input id="wsAddressInput" type="text" value="192.170.3.208:80" style="width: 240px;" />
+        <button id="applyWsBtn">Apply Server</button>
+        <br><br>
+        
+        <video id="localVideo" autoplay playsinline muted></video>
+        <br><br>
+        
+        <button id="startBtn">1. Start 60FPS Capture</button>
+        <button id="connectBtn" disabled style="background-color: #4CAF50; color: white; border: none;">2. Send to Unity (High Bitrate)</button>
+    </div>
+
+    <script type="text/javascript" src="https://unpkg.com/@unity/webrtc@3.0.0-pre.4/dist/unity-webrtc.js"></script>
+    
+    <script>
+        let localStream;
+        let peerConnection;
+        let ws;
+        let hasSentOffer = false;
+        let pendingLocalCandidates = [];
+        let pendingRemoteCandidates = [];
+        const defaultSignalingAddress = "192.170.3.208:80";
+
+        const connectionStatus = document.getElementById('connectionStatus');
+        const wsAddressInput = document.getElementById('wsAddressInput');
+        const applyWsBtn = document.getElementById('applyWsBtn');
+        const connectBtn = document.getElementById('connectBtn');
+
+        /**
+         * OPTIMIZATION: Manually modifies the SDP string to force high bitrate.
+         * Unity's WebRTC implementation respects these 'b=AS' (Application Specific) lines.
+         */
+        function setHighBitrate(sdp) {
+            const bitrateKbps = 15000; // 15 Mbps for high speed
+            let lines = sdp.split('\r\n');
+            let newLines = [];
+            
+            for (let i = 0; i < lines.length; i++) {
+                newLines.push(lines[i]);
+                // If we find the video media line, inject bitrate constraints immediately after
+                if (lines[i].indexOf('m=video') !== -1) {
+                    newLines.push("b=AS:" + bitrateKbps);
+                    newLines.push("b=TIAS:" + (bitrateKbps * 1000));
+                }
+            }
+            return newLines.join('\r\n');
+        }
+
+        function normalizeWsAddress(input) {
+            const trimmed = (input || "").trim();
+            if (!trimmed) return "ws://" + defaultSignalingAddress;
+            if (trimmed.startsWith("ws://") || trimmed.startsWith("wss://")) return trimmed;
+            return "ws://" + trimmed;
+        }
+
+        function updateStatus(text, color) {
+            connectionStatus.innerText = "Status: " + text;
+            connectionStatus.style.color = color;
+        }
+
+        function connectWebSocket(inputAddress) {
+            const wsUrl = normalizeWsAddress(inputAddress || defaultSignalingAddress);
+            if (ws) ws.close();
+
+            updateStatus("Connecting to " + wsUrl + " ...", "blue");
+            ws = new WebSocket(wsUrl);
+
+            ws.onopen = () => updateStatus("WebSocket Connected", "green");
+            ws.onmessage = async (message) => {
+                const parsed = JSON.parse(message.data);
+                if (parsed.type === 'answer') {
+                    await peerConnection.setRemoteDescription(new RTCSessionDescription({
+                        type: 'answer', sdp: parsed.data.sdp
+                    }));
+                    while (pendingRemoteCandidates.length > 0) {
+                        const cand = pendingRemoteCandidates.shift();
+                        await peerConnection.addIceCandidate(new RTCIceCandidate(cand));
+                    }
+                    updateStatus("Connected to Unity! Streaming High-Speed...", "green");
+                } else if (parsed.type === 'candidate') {
+                    const cand = { candidate: parsed.data.candidate, sdpMid: parsed.data.sdpMid, sdpMLineIndex: parsed.data.sdpMLineIndex };
+                    if (!peerConnection || !peerConnection.remoteDescription) {
+                        pendingRemoteCandidates.push(cand);
+                    } else {
+                        await peerConnection.addIceCandidate(new RTCIceCandidate(cand));
+                    }
+                }
+            };
+            ws.onerror = () => updateStatus("WebSocket Error", "red");
+        }
+
+        applyWsBtn.onclick = () => connectWebSocket(wsAddressInput.value);
+        connectWebSocket(defaultSignalingAddress);
+
+        document.getElementById('startBtn').onclick = async () => {
+            try {
+                // OPTIMIZATION: Request 60 FPS and Motion priority
+                const constraints = {
+                    video: {
+                        width: { ideal: 1920 },
+                        height: { ideal: 1080 },
+                        frameRate: { ideal: 60, max: 60 },
+                        displaySurface: "monitor"
+                    },
+                    audio: false
+                };
+                
+                localStream = await navigator.mediaDevices.getDisplayMedia(constraints);
+                
+                // OPTIMIZATION: Set contentHint to 'motion' to reduce encoding lag/latency
+                localStream.getVideoTracks().forEach(track => {
+                    if ('contentHint' in track) track.contentHint = 'motion';
+                });
+
+                document.getElementById('localVideo').srcObject = localStream;
+                connectBtn.disabled = false;
+                updateStatus("Screen Captured @ 60FPS", "blue");
+            } catch (e) {
+                console.error(e);
+                alert("Capture failed. Use HTTPS or localhost.");
+            }
+        };
+
+        connectBtn.onclick = async () => {
+            if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+            // OPTIMIZATION: Optimize PeerConnection for low latency bundle
+            peerConnection = new RTCPeerConnection({
+                bundlePolicy: "max-bundle",
+                rtcpMuxPolicy: "require"
+            });
+
+            hasSentOffer = false;
+            pendingLocalCandidates = [];
+            
+            // Add track to connection
+            localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
+
+            // OPTIMIZATION: Set Max Bitrate on the Sender object (10Mbps)
+            const senders = peerConnection.getSenders();
+            senders.forEach(sender => {
+                if (sender.track && sender.track.kind === 'video') {
+                    const params = sender.getParameters();
+                    if (!params.encodings) params.encodings = [{}];
+                    params.encodings[0].maxBitrate = 10000000; // 10 Mbps limit
+                    sender.setParameters(params);
+                }
+            });
+
+            peerConnection.onicecandidate = (event) => {
+                if (event.candidate) {
+                    if (!hasSentOffer) { pendingLocalCandidates.push(event.candidate); }
+                    else {
+                        ws.send(JSON.stringify({
+                            type: 'candidate', from: 'ScreenStream',
+                            data: { candidate: event.candidate.candidate, sdpMid: event.candidate.sdpMid, sdpMLineIndex: event.candidate.sdpMLineIndex, connectionId: 'ScreenStream' }
+                        }));
+                    }
+                }
+            };
+
+            // Create Offer
+            const offer = await peerConnection.createOffer();
+            
+            // OPTIMIZATION: Inject high bitrate into the SDP before setting local description
+            const highSpeedSdp = setHighBitrate(offer.sdp);
+            
+            await peerConnection.setLocalDescription({ type: 'offer', sdp: highSpeedSdp });
+
+            ws.send(JSON.stringify({
+                type: 'offer', 
+                from: 'ScreenStream',
+                data: {
+                    sdp: highSpeedSdp, 
+                    type: 'offer',
+                    polite: true,
+                    connectionId: 'ScreenStream'
+                }
+            }));
+
+            hasSentOffer = true;
+            pendingLocalCandidates.forEach(cand => {
+                ws.send(JSON.stringify({
+                    type: 'candidate', from: 'ScreenStream',
+                    data: { candidate: cand.candidate, sdpMid: cand.sdpMid, sdpMLineIndex: cand.sdpMLineIndex, connectionId: 'ScreenStream' }
+                }));
+            });
+            updateStatus("Negotiating High-Speed Link...", "blue");
+        };
+    </script>
+</body>
+</html>
