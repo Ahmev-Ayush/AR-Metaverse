@@ -6,7 +6,7 @@ public class SwitchBtwScenesScript : MonoBehaviour
 {
     // [SerializeField] 
     // [Tooltip("Button List")]
-    public Button exitButton;
+    // public Button exitButton;
 
     // public GameObject wsSettingPanel;
     // public GameObject showWSSettingPanelButton;

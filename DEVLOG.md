@@ -70,4 +70,11 @@
 
 **What I Did:**
 - modified SplitScreenScene2 for testing on google cardboard
+
+## 🗓️ 16-04-2026 - 18-04-2026
+
+**What I Did:**
+- created new scenes AndroidAppScene and WindowsAppScene for remote rendering
+- commiting for some progress but not success in building Android and windows app communication
+
 <!-- Keep adding entries as you work -->

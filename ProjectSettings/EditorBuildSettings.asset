@@ -8,7 +8,7 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/ARMetaverseScene.unity
     guid: 4755b35b590504809a7525fd2109c2e2
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/VRMetaverseScene.unity
     guid: db9ae0a8bcb978e4ea6c82cb68469239
   - enabled: 0
@@ -26,6 +26,15 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/SplitScreenScene3.unity
     guid: 6f1f62445d9aa5e4eb4a5cc204139da0
+  - enabled: 0
+    path: Assets/Scenes/VRMetaverseScene2.unity
+    guid: 495c751d95a8fe54f848e567d0e66647
+  - enabled: 1
+    path: Assets/Scenes/RemoteRenderingScenes/DesktopAppScene.unity
+    guid: 767563f3ae8e56f49a503a3b59daf121
+  - enabled: 0
+    path: Assets/Scenes/RemoteRenderingScenes/AndroidAppScene.unity
+    guid: c463adb232c7fd04bbc88ae2e080b290
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: a39812d04c01a9d4c97d24e2793c24e5, type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af, type: 2}
