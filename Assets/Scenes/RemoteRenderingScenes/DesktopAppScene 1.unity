@@ -1561,6 +1561,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3b295d746b9bc854cb1fced448ee9caf, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::SetConnectionIDs
+  androidConnectionHandler: {fileID: 5043907076763825323}
+  androidConnectionId: windowsStream
   browserConnectionHandler: {fileID: 1077386187}
   browserConnectionId: ScreenStream
 --- !u!114 &5043907076763825322
@@ -1575,7 +1577,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bcc82901c3f48a88d3408251afa3365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.VideoStreamSender
-  m_TextureSize: {x: 2560, y: 1440}
+  m_TextureSize: {x: 1280, y: 720}
   m_Source: 1
   m_Camera: {fileID: 6405639714629881965}
   m_Texture: {fileID: 0}
@@ -1587,8 +1589,8 @@ MonoBehaviour:
     m_SdpFmtpLine: 
   m_FrameRate: 60
   m_Bitrate:
-    min: 7101
-    max: 8101
+    min: 5000
+    max: 8000
   m_ScaleFactor: 1
   m_AutoRequestUserAuthorization: 1
 --- !u!114 &5043907076763825323
@@ -1600,9 +1602,9 @@ MonoBehaviour:
   m_GameObject: {fileID: 3994314457656433568}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c2307e7ad91222841b562bebd81a69a0, type: 3}
+  m_Script: {fileID: 11500000, guid: 4ae253ffca93b1b44a471a07cde60141, type: 3}
   m_Name: 
-  m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.Broadcast
+  m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.SingleConnection
   streams:
   - {fileID: 5043907076763825322}
 --- !u!114 &5324643821407687787

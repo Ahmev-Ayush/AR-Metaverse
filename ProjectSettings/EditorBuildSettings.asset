@@ -29,12 +29,18 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/VRMetaverseScene2.unity
     guid: 495c751d95a8fe54f848e567d0e66647
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/RemoteRenderingScenes/DesktopAppScene.unity
     guid: 767563f3ae8e56f49a503a3b59daf121
   - enabled: 0
     path: Assets/Scenes/RemoteRenderingScenes/AndroidAppScene.unity
     guid: c463adb232c7fd04bbc88ae2e080b290
+  - enabled: 1
+    path: Assets/Scenes/RemoteRenderingScenes/AndroidAppScene 1.unity
+    guid: 750562d9916e1b94aa238528eccb46ed
+  - enabled: 0
+    path: Assets/Scenes/RemoteRenderingScenes/DesktopAppScene 1.unity
+    guid: 3d0d2f8044509984c85735b65b7f4dc0
   m_configObjects:
     Unity.XR.Oculus.Settings: {fileID: 11400000, guid: a39812d04c01a9d4c97d24e2793c24e5, type: 2}
     UnityEditor.XR.ARCore.ARCoreSettings: {fileID: 11400000, guid: 6ee72d15cf39dd748a13eac57397b9af, type: 2}

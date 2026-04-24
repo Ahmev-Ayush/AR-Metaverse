@@ -42,7 +42,10 @@ If the video does not render on your platform, open it directly here: [ARWorkspa
 
 ### Scenes in the project
 1. ARMetaverseScene (main scene)
-2. ARMetaverseSceneModified 
-3. SplitScreenScene1
-4. SplitScreenScene2
-5. TestStreaming
+2. ARMetaverseSceneModified - AR Session Tracking mode = Rotation Only & No plane detection! (highly optimized for less CPU usage).
+3. SplitScreenScene1 -  (formerly ARMetaverseScene1): Stereoscopic rendering (two cameras) on canvasDisplay.
+4. SplitScreenScene2 - (formerly ARMetaverseScene2): Stereoscopic rendering (two cameras) without canvasDisplay (modified for testing on Google Cardboard).
+5. TestStreaming - Scene for Unity Render Streaming tutorial.
+6. VRMetaverseScene - : Duplicated from ARMetaverseSceneModified to remove AR Camera Background and test its effect on processing.
+7. AndroidAppScene & WindowsAppScene - Setup for remote rendering. only browser streaming working
+8. AndroidAppScene 1 & WindowsAppScene -  Testing simultaneous active connections (Browser -> WindowsApp -> AndroidApp). [Working!!!!!]

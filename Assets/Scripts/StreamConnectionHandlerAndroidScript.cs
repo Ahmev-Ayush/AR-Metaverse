@@ -16,8 +16,20 @@ public class StreamConnectionHandlerAndroidScript : MonoBehaviour
     [Tooltip("Drag the MeshRenderer (e.g., Quad) that will display the video")]
     public RawImage targetRawImage;
 
+    [Tooltip("Drag the SingleConnection component here")]
+    public SingleConnection singleConnection;
+
+    [Tooltip("The Connection ID to receive from")]
+    public string connectionId = "windowsStream";
+
     void Start()
     {
+        if (singleConnection != null && !string.IsNullOrEmpty(connectionId))
+        {
+            singleConnection.CreateConnection(connectionId);
+            Debug.Log($"[StreamConnectionHandler] Requested connectionId: {connectionId}");
+        }
+
         if (videoReceiver != null)
         {
             // Subscribe to the event when the video texture updates

@@ -77,4 +77,10 @@
 - created new scenes AndroidAppScene and WindowsAppScene for remote rendering
 - commiting for some progress but not success in building Android and windows app communication
 
+## 🗓️ 24-04-2026 
+
+**What I Did:**
+- AndroidAppScene and WindowsAppScene : one connection at a time working ie either browser to windowsApp or windowsApp to androidApp
+- Creating and testing in scenes - (AndroidAppScene 1) and (WindowsAppScene 1) _____ Working _____________
+
 <!-- Keep adding entries as you work -->
