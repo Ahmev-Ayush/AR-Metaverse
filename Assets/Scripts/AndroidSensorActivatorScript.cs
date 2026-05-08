@@ -12,5 +12,9 @@ public class AndroidSensorActivatorScript : MonoBehaviour
         // Also enable normal Accelerometer just in case
         if (Accelerometer.current != null)
             InputSystem.EnableDevice(Accelerometer.current);
+            
+        // Enable Gyroscope 
+        if (UnityEngine.InputSystem.Gyroscope.current != null)
+            InputSystem.EnableDevice(UnityEngine.InputSystem.Gyroscope.current);
     }
 }

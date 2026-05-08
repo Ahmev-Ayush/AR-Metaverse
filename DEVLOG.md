@@ -81,6 +81,20 @@
 
 **What I Did:**
 - AndroidAppScene and WindowsAppScene : one connection at a time working ie either browser to windowsApp or windowsApp to androidApp
-- Creating and testing in scenes - (AndroidAppScene 1) and (WindowsAppScene 1) _____ Working _____________
+- Creating and testing in scenes - (AndroidAppScene 1) and (WindowsAppScene 1) _____ Working : Build Android App name = AndroidAppScene.apk
+
+## 🗓️ 02-05-2026 
+
+**What I Did:**
+- Updating WindowsAppScene & AndroidAppScene for vr experience (including gyro input from phone) extension of the work in AndroidAppScene 2 and WindowsAppScene 1
+
+(not tested!)-----------------------
+Since InputRemoting is failing you completely, I have bypassed it and hooked directly into Unity Render Streaming's raw lowest-latency WebRTC DataChannel.
+-RotationDataSender.cs
+-RotationDataReceiver.cs
+(not tested!)----------------------
+
+
+ _____________
 
 <!-- Keep adding entries as you work -->

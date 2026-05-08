@@ -8,17 +8,19 @@ public class RemoteRotationHandlerScript : MonoBehaviour
 
     // Cached action reference to avoid repeated property lookups and simplify unsubscribe.
     InputAction _rotationInput;
+    private float _nextDebugLog = 0f;
 
     void OnEnable()
     {
         // Resolve the runtime action from the serialized action reference.
         _rotationInput = rotationAction?.action;
         if (_rotationInput == null)
+        {
+            Debug.LogWarning("[RemoteRotationHandler] Action is null! Please assign a valid InputActionReference.");
             return;
+        }
 
-        // Event-driven input: update rotation only when input changes.
-        _rotationInput.performed += OnRotationChanged;
-        _rotationInput.canceled += OnRotationChanged;
+        Debug.Log($"[RemoteRotationHandler] Subscribed to action: {_rotationInput.name}");
         _rotationInput.Enable();
     }
 
@@ -27,42 +29,27 @@ public class RemoteRotationHandlerScript : MonoBehaviour
         if (_rotationInput == null)
             return;
 
-        // Always unsubscribe to prevent duplicate callbacks or leaks after re-enable.
-        _rotationInput.performed -= OnRotationChanged;
-        _rotationInput.canceled -= OnRotationChanged;
+        Debug.Log($"[RemoteRotationHandler] Unsubscribed from action: {_rotationInput.name}");
         _rotationInput.Disable();
     }
 
-    void OnRotationChanged(InputAction.CallbackContext context)
-    {
-        // Apply incoming remote/device quaternion directly to this transform.
-        transform.localRotation = context.ReadValue<Quaternion>();
-    }
-
-    /*
-    Legacy polling approach (uses more CPU because it runs every frame):
-
     void Update()
     {
-        if (rotationAction?.action == null)
-            return;
+        if (_rotationInput == null) return;
 
-        Quaternion remoteRot = rotationAction.action.ReadValue<Quaternion>();
-        transform.localRotation = remoteRot;
-    }
+        // Polling is often more reliable for continuous sensors than event-driven callbacks.
+        Quaternion newRot = _rotationInput.ReadValue<Quaternion>();
 
-    OR
-
-    void Update()
-    {
-        // Read the Quaternion rotation sent from the Android phone
-        Quaternion remoteRot = rotationAction.action.ReadValue<Quaternion>();
-
-        if (remoteRot != Quaternion.identity)
+        if (Time.time > _nextDebugLog)
         {
-            // Apply it to the camera
-            transform.localRotation = remoteRot;
+            Debug.Log($"[RemoteRotationHandler] Polled Raw Quat: {newRot} | Euler: {newRot.eulerAngles}");
+            _nextDebugLog = Time.time + 1f;
+        }
+
+        // Only apply valid rotations (a zero quaternion will collapse your object's scale/rotation and ruin rendering)
+        if (Mathf.Abs(newRot.x) > 0.01f || Mathf.Abs(newRot.y) > 0.01f || Mathf.Abs(newRot.z) > 0.01f || Mathf.Abs(newRot.w) > 0.01f)
+        {
+            transform.localRotation = newRot;
         }
     }
-    */
 }

@@ -826,7 +826,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 0.007843138}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.19607843}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -1302,7 +1302,7 @@ Transform:
   m_GameObject: {fileID: 1982289758}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0.012, y: 1.203, z: -8.524}
+  m_LocalPosition: {x: -0.523, y: 1.59, z: -8}
   m_LocalScale: {x: 3.2, y: 1.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1411,7 +1411,7 @@ RectTransform:
   m_AnchorMin: {x: 0, y: 0.5}
   m_AnchorMax: {x: 0, y: 0.5}
   m_AnchoredPosition: {x: 240, y: 0}
-  m_SizeDelta: {x: 256, y: 152}
+  m_SizeDelta: {x: 320, y: 190}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!1 &2476243275087870842
 GameObject:
@@ -1519,7 +1519,6 @@ GameObject:
   - component: {fileID: 5043907076763825323}
   - component: {fileID: 5043907076763825319}
   - component: {fileID: 5043907076763825322}
-  - component: {fileID: 5043907076763825324}
   m_Layer: 0
   m_Name: RenderStreamingManager
   m_TagString: Untagged
@@ -1578,20 +1577,20 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 8bcc82901c3f48a88d3408251afa3365, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.VideoStreamSender
-  m_TextureSize: {x: 2560, y: 1440}
+  m_TextureSize: {x: 1280, y: 720}
   m_Source: 1
   m_Camera: {fileID: 6405639714629881965}
-  m_Texture: {fileID: 8400000, guid: d605af3bf44ab6848abd6f841602b7fa, type: 2}
+  m_Texture: {fileID: 0}
   m_WebCamDeviceIndex: 0
   m_Depth: 24
   m_AntiAliasing: 1
   m_Codec:
-    m_MimeType: video/AV1
-    m_SdpFmtpLine: implementation_name=Internal
-  m_FrameRate: 30
+    m_MimeType: 
+    m_SdpFmtpLine: 
+  m_FrameRate: 60
   m_Bitrate:
     min: 5000
-    max: 10000
+    max: 8000
   m_ScaleFactor: 1
   m_AutoRequestUserAuthorization: 1
 --- !u!114 &5043907076763825323
@@ -1608,21 +1607,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.SingleConnection
   streams:
   - {fileID: 5043907076763825322}
---- !u!114 &5043907076763825324
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3994314457656433568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3cbab44188751249a4cb28a417a52a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::highSpeedVideoStreamingScript
-  videoStreamSender: {fileID: 5043907076763825322}
-  minBitrateKbps: 8000
-  maxBitrateKbps: 15000
 --- !u!114 &5324643821407687787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1704,7 +1688,7 @@ Camera:
   m_Enabled: 1
   serializedVersion: 2
   m_ClearFlags: 2
-  m_BackGroundColor: {r: 0, g: 0, b: 0, a: 0}
+  m_BackGroundColor: {r: 1, g: 1, b: 1, a: 0}
   m_projectionMatrixMode: 1
   m_GateFitMode: 2
   m_FOVAxisMode: 0
@@ -1805,7 +1789,7 @@ RectTransform:
   m_AnchorMin: {x: 1, y: 0.5}
   m_AnchorMax: {x: 1, y: 0.5}
   m_AnchoredPosition: {x: -240, y: 0}
-  m_SizeDelta: {x: 256, y: 152}
+  m_SizeDelta: {x: 320, y: 190}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!223 &7715799396220066331
 Canvas:
