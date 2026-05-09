@@ -26,9 +26,11 @@ public class RemoteSensorEnablerScript : MonoBehaviour
 
     private void OnDeviceChange(InputDevice device, InputDeviceChange change)
     {
+        Debug.Log($"[RemoteSensorEnablerScript] Device Changed: {device.name} Type: {device.GetType().Name} Change: {change} Remote: {device.remote}");
+        
         // As soon as the Android App connects and sends its AttitudeSensor layout,
         // enable it so the Windows Input System processes the incoming gyroscope events
-        if (change == InputDeviceChange.Added && device is AttitudeSensor)
+        if (change == InputDeviceChange.Added && device is Sensor)
         {
             Debug.Log($"[RemoteSensorEnablerScript] Remote {device.name} network device added! Enabling...");
             InputSystem.EnableDevice(device);

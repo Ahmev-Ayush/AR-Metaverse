@@ -358,7 +358,7 @@ Transform:
   m_GameObject: {fileID: 263136275}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -252.9565, y: 1, z: -383.45554}
+  m_LocalPosition: {x: 0.031, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -468,7 +468,6 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 350605173}
-  - component: {fileID: 350605174}
   m_Layer: 0
   m_Name: StereoCameras
   m_TagString: Untagged
@@ -485,7 +484,7 @@ Transform:
   m_GameObject: {fileID: 350605172}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 252.98749, y: -0, z: 373.45554}
+  m_LocalPosition: {x: 0, y: 0, z: -0.91}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
@@ -493,19 +492,6 @@ Transform:
   - {fileID: 263136276}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &350605174
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 350605172}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1d939bed931e8404b98255bc2911637c, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::RemoteRotationHandlerScript
-  rotationAction: {fileID: 2991271073105001114, guid: 5771062876288e240bca077e956ebbb7, type: 3}
 --- !u!1 &894815427
 GameObject:
   m_ObjectHideFlags: 0
@@ -739,6 +725,70 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 1735072801}
   m_CullTransparentMesh: 1
+--- !u!1 &1739444210
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 1739444213}
+  - component: {fileID: 1739444212}
+  - component: {fileID: 1739444211}
+  m_Layer: 0
+  m_Name: InputRecevieManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!114 &1739444211
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739444210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 30ff628921d1aff41b19c4b1c6bd25a1, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::RotationDataReceiver
+  local: 0
+  label: 
+  stereoCameraTarget: {fileID: 350605173}
+  connectionId: InputStream
+  _singleConnection: {fileID: 1739444212}
+--- !u!114 &1739444212
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739444210}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 4ae253ffca93b1b44a471a07cde60141, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.SingleConnection
+  streams:
+  - {fileID: 1739444211}
+--- !u!4 &1739444213
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1739444210}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 672.9378, y: 0, z: 5775.681}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &1875357655
 GameObject:
   m_ObjectHideFlags: 0
@@ -817,7 +867,7 @@ Transform:
   m_GameObject: {fileID: 1875357655}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -253.0185, y: 1, z: -383.45554}
+  m_LocalPosition: {x: -0.031, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1190,7 +1240,7 @@ Transform:
   m_GameObject: {fileID: 1982289758}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -0.07, y: 1.032, z: -8.52}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 3.2, y: 1.8, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1215,6 +1265,7 @@ MonoBehaviour:
   handlers:
   - {fileID: 1077386187}
   - {fileID: 5043907076763825324}
+  - {fileID: 1739444212}
   runOnAwake: 1
   evaluateCommandlineArguments: 1
   references:
@@ -1407,8 +1458,6 @@ GameObject:
   - component: {fileID: 5043907076763825324}
   - component: {fileID: 5043907076763825319}
   - component: {fileID: 5043907076763825322}
-  - component: {fileID: 5043907076763825323}
-  - component: {fileID: 5043907076763825325}
   m_Layer: 0
   m_Name: RenderStreamingManager
   m_TagString: Untagged
@@ -1455,6 +1504,8 @@ MonoBehaviour:
   androidConnectionId: windowsStream
   browserConnectionHandler: {fileID: 1077386187}
   browserConnectionId: ScreenStream
+  inputConnectionHandler: {fileID: 1739444212}
+  inputConnectionId: InputStream
 --- !u!114 &5043907076763825322
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1479,25 +1530,10 @@ MonoBehaviour:
     m_SdpFmtpLine: implementation_name=Internal
   m_FrameRate: 30
   m_Bitrate:
-    min: 7101
-    max: 10000
+    min: 2000
+    max: 5000
   m_ScaleFactor: 1
   m_AutoRequestUserAuthorization: 1
---- !u!114 &5043907076763825323
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3994314457656433568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: d3cbab44188751249a4cb28a417a52a9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::highSpeedVideoStreamingScript
-  videoStreamSender: {fileID: 5043907076763825322}
-  minBitrateKbps: 8000
-  maxBitrateKbps: 20000
 --- !u!114 &5043907076763825324
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1512,28 +1548,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.SingleConnection
   streams:
   - {fileID: 5043907076763825322}
-  - {fileID: 5043907076763825325}
---- !u!114 &5043907076763825325
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 3994314457656433568}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: decb088abd7ec9747b6e9a1011c046b2, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.InputReceiver
-  local: 0
-  label: 
-  m_Actions: {fileID: -944628639613478452, guid: 5771062876288e240bca077e956ebbb7, type: 3}
-  m_ActionEvents:
-  - m_PersistentCalls:
-      m_Calls: []
-    m_ActionId: f8c43e5f-6412-4f83-8833-55443b7e9374
-    m_ActionName: RemoteVR/Rotation
-  m_DefaultActionMap: RemoteVR
 --- !u!114 &5324643821407687787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -1835,6 +1849,7 @@ SceneRoots:
   - {fileID: 1977288147}
   - {fileID: 5043907076763825318}
   - {fileID: 1077386188}
+  - {fileID: 1739444213}
   - {fileID: 1973718450}
   - {fileID: 7556778762723622193}
   - {fileID: 1982289762}

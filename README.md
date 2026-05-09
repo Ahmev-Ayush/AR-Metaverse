@@ -48,4 +48,5 @@ If the video does not render on your platform, open it directly here: [ARWorkspa
 5. TestStreaming - Scene for Unity Render Streaming tutorial.
 6. VRMetaverseScene - : Duplicated from ARMetaverseSceneModified to remove AR Camera Background and test its effect on processing.
 7. AndroidAppScene & WindowsAppScene - Setup for remote rendering. only browser streaming working
-8. AndroidAppScene 1 & WindowsAppScene -  Testing simultaneous active connections (Browser -> WindowsApp -> AndroidApp). [Working!!!!!]
+8. AndroidAppScene 1 & WindowsAppScene 1 -  Testing simultaneous active connections (Browser -> WindowsApp -> AndroidApp). [Working!!!!!]
+9. AndroidAppScene 2 & WindowsAppScene 2 -  Android's gyrosensor data being used for controlling rotation of stereocamera in windows app [Working!!!!!]

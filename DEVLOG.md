@@ -97,4 +97,18 @@ Since InputRemoting is failing you completely, I have bypassed it and hooked dir
 
  _____________
 
+
+## 🗓️ 08-05-2026 
+
+**What I Did:**
+- Testing RotationDataSender.cs and RotationDataReceiver.cs in AndroidAppScene 2 and windowsAppScene 2
+- (Issue of inputSender and inputReceiver is still not solved, no receiving of data in windowsAppScene)
+
+
+## 🗓️ 09-05-2026 
+
+**What I Did:**
+- In AndroidAppScene 2 and windowsAppScene 3, using gyrosensor of android phone to control sterocamera on windows successfully implemented 
+- How? Created another single connection base for one way communication (only for input communication)
+
 <!-- Keep adding entries as you work -->

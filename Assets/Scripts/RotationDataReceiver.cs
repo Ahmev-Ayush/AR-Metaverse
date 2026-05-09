@@ -8,9 +8,17 @@ public class RotationDataReceiver : DataChannelBase
     [Header("Camera To Rotate")]
     public Transform stereoCameraTarget;
 
+    [Header("Connection Settings")]
+    [Tooltip("The Connection ID to receive from")]
+    public string connectionId = "InputStream";
+
+    public SingleConnection _singleConnection;
+
     private Quaternion _newRot = Quaternion.identity;
     private Quaternion _lastLogRot = Quaternion.identity;
     private float _nextLogTime;
+
+  
 
     void Update()
     {
@@ -55,13 +63,6 @@ public class RotationDataReceiver : DataChannelBase
                 float.TryParse(parts[3], out float w))
             {
                 _newRot = new Quaternion(x, y, z, w);
-
-                if (Quaternion.Angle(_newRot, _lastLogRot) > 0.5f && Time.time > _nextLogTime)
-                {
-                    Debug.Log($"[RotationDataReceiver] Received Quat: {_newRot} | Euler: {_newRot.eulerAngles}");
-                    _lastLogRot = _newRot;
-                    _nextLogTime = Time.time + 2f;
-                }
             }
         }
     }
