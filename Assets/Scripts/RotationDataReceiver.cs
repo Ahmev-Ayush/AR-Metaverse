@@ -10,7 +10,7 @@ public class RotationDataReceiver : DataChannelBase
 
     [Header("Calibration Settings")]
     [Tooltip("Adjust the starting direction.")]  //  For horizontal phone, try setting X to 90 or -90.
-    public Vector3 initialRotationOffset = new Vector3(90, 0, 0); // Default is 90 on X to align with typical phone orientation, but adjust as needed for your setup.
+    public Vector3 initialRotationOffset = new Vector3(90, 0, 0); // default is 90 on X to align with typical phone orientation, but adjust as needed for your setup.
     [Tooltip("Check this if Up/Down rotation is inverted.")]
     public bool invertPitch = true;
     [Tooltip("Check this if Left/Right rotation is inverted.")]
