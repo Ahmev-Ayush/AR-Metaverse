@@ -41,10 +41,10 @@ EditorBuildSettings:
   - enabled: 0
     path: Assets/Scenes/RemoteRenderingScenes/1/DesktopAppScene 1.unity
     guid: 3d0d2f8044509984c85735b65b7f4dc0
-  - enabled: 0
+  - enabled: 1
     path: Assets/Scenes/RemoteRenderingScenes/AndroidAppScene 2.unity
     guid: e049ba74ec6bc4244bde98c5ddb8619c
-  - enabled: 1
+  - enabled: 0
     path: Assets/Scenes/RemoteRenderingScenes/DesktopAppScene 2.unity
     guid: cd29b2012f0837749988709e6147d6ab
   m_configObjects:

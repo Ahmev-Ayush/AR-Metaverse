@@ -10,19 +10,23 @@ public class AndroidSensorActivatorScript : MonoBehaviour
 
     void Start()
     {
-        // Enable the Gyroscope on the Android device
+        // Enable the Gyroscope on the Android device 
+        // For a standard 3DoF VR experience on a phone, 
+        // you only need the rotation (orientation) of the device.
         if (AttitudeSensor.current != null)
             InputSystem.EnableDevice(AttitudeSensor.current);
             
-        // Also enable normal Accelerometer just in case
-        if (Accelerometer.current != null)
-            InputSystem.EnableDevice(Accelerometer.current);
+        // Also enable normal Accelerometer if you want to use it for additional motion input, 
+        // but it's not strictly necessary for basic VR orientation tracking________
+        // if (Accelerometer.current != null)
+        //     InputSystem.EnableDevice(Accelerometer.current);
             
         // Enable Gyroscope 
-        if (UnityEngine.InputSystem.Gyroscope.current != null)
-            InputSystem.EnableDevice(UnityEngine.InputSystem.Gyroscope.current);
+        // if (UnityEngine.InputSystem.Gyroscope.current != null)
+        //     InputSystem.EnableDevice(UnityEngine.InputSystem.Gyroscope.current);
     }
     
+    /*
     void Update()
     {
         if (statusText != null)
@@ -38,4 +42,6 @@ public class AndroidSensorActivatorScript : MonoBehaviour
             }
         }
     }
+
+    */
 }
