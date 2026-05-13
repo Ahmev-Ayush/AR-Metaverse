@@ -1425,6 +1425,7 @@ GameObject:
   - component: {fileID: 5043907076763825324}
   - component: {fileID: 5043907076763825319}
   - component: {fileID: 5043907076763825322}
+  - component: {fileID: 5043907076763825325}
   m_Layer: 0
   m_Name: RenderStreamingManager
   m_TagString: Untagged
@@ -1497,7 +1498,7 @@ MonoBehaviour:
     m_SdpFmtpLine: implementation_name=Internal
   m_FrameRate: 30
   m_Bitrate:
-    min: 5000
+    min: 8000
     max: 10000
   m_ScaleFactor: 1
   m_AutoRequestUserAuthorization: 1
@@ -1515,6 +1516,21 @@ MonoBehaviour:
   m_EditorClassIdentifier: Unity.RenderStreaming::Unity.RenderStreaming.SingleConnection
   streams:
   - {fileID: 5043907076763825322}
+--- !u!114 &5043907076763825325
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3994314457656433568}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d3cbab44188751249a4cb28a417a52a9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::highSpeedVideoStreamingScript
+  videoStreamSender: {fileID: 5043907076763825322}
+  minBitrateKbps: 10000
+  maxBitrateKbps: 15000
 --- !u!114 &5324643821407687787
 MonoBehaviour:
   m_ObjectHideFlags: 0

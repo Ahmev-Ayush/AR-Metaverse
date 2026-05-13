@@ -10,8 +10,14 @@ High-end AR/VR headsets like the Meta Quest 3 and Apple Vision Pro offer incredi
 
 ### 🎬 Demo
 ![AR Metaverse Workspace Demo](Demos/ARWorkspace.gif)
+<!-- <video src="Demos/ARWorkspace.mp4" controls width="900"></video> -->
+<!-- AR Workspace (Rendering on mobile) -->
 
-<video src="Demos/ARWorkspace.mp4" controls width="900"></video>
+![VR Metaverse Workspace Demo](Demos/VRWorkspacegif.gif)
+<!-- ![AR Metaverse Workspace Demo](Demos/ARWorkspace.gif) -->
+<!-- <video src="Demos/VRWorkspace.mp4" controls width="900"></video> -->
+<!-- VR Workspace (Remote Rendering) -->
+
 (Wait while GIF is loading!)
 If the video does not render on your platform, open it directly here: [ARWorkspace.mp4](Demos/ARWorkspace.mp4)
 
