@@ -1,6 +1,5 @@
 using UnityEngine;
-using UnityEngine.UI;
-// using UnityEngine.SceneManagement;
+using UnityEngine.SceneManagement;
 
 public class SwitchBtwScenesScript : MonoBehaviour
 {
@@ -10,6 +9,8 @@ public class SwitchBtwScenesScript : MonoBehaviour
 
     // public GameObject wsSettingPanel;
     // public GameObject showWSSettingPanelButton;
+
+    public GameObject urlUpdatePanel;
 
 
 
@@ -30,10 +31,11 @@ public class SwitchBtwScenesScript : MonoBehaviour
         // Application.targetFrameRate = 24; // You can adjust this value based on your performance needs and device capabilities
     }
 
-    // void Start()
-    // {
+    void Start()
+    {
         // wsSettingPanel.SetActive(false);
-    // }
+        urlUpdatePanel.SetActive(false);
+    }
 
     
     // void OnEnable()
@@ -71,4 +73,14 @@ public class SwitchBtwScenesScript : MonoBehaviour
     //     exitButton.interactable = true;  // Re-enable the exit button
     //     showWSSettingPanelButton.SetActive(true); // Show the button that shows the settings panel
     // }
+
+    public void ShowURLUpdatePanel()
+    {
+        urlUpdatePanel.SetActive(true); 
+    }
+    public void CloseURLUpdatePanel()
+    {
+        urlUpdatePanel.SetActive(false); 
+    }
+
 }

@@ -1,15 +1,16 @@
 using System;
 using System.Linq;
+using System.Collections;
 using UnityEngine;
 using TMPro;
 using Unity.RenderStreaming;
 
-public class WebServerIPScript : MonoBehaviour
+public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
 {
     [Header("Default Server Address")]
-    [SerializeField] private string defaultWebSocketUrl = "ws://192.170.2.137:80";
+    [SerializeField] private string defaultWebSocketUrl = "192.170.2.137:80";
 
-    [Header("Optional UI Input")]
+    [Header("New URL Input")]
     [SerializeField] private string playerPrefsKey = "WebSocketServerUrl";
 
     [SerializeField] private TMP_InputField serverAddressInputField;
@@ -19,12 +20,37 @@ public class WebServerIPScript : MonoBehaviour
     [Tooltip("If true, the script loads the previously saved URL from PlayerPrefs at startup.")]
     [SerializeField] private bool loadSavedUrlOnStart = true;
 
+    [Header("Status UI")]
+    [Tooltip("Text element to show connection status.")]
+    [SerializeField] private TMP_Text connectionStatusText;
+    [Tooltip("How long to show the status text before disappearing.")]
+    [SerializeField] private float statusDisplayDuration = 2f;
+
     [Tooltip("Current WebSocket URL used by the app.")]
     public string webServerIP;
+
+    private Coroutine statusCoroutine;
 
     private void Start()
     {
         InitializeServerUrl();
+        if (signalingManager != null)
+        {
+            signalingManager.AddSignalingHandler(this);
+        }
+    }
+
+    private void OnDestroy()
+    {
+        if (signalingManager != null)
+        {
+            signalingManager.RemoveSignalingHandler(this);
+        }
+    }
+
+    public void OnConnect(SignalingEventData eventData)
+    {
+        ShowStatusMessage("connected!", Color.green);
     }
 
     private void InitializeServerUrl()
@@ -59,6 +85,7 @@ public class WebServerIPScript : MonoBehaviour
         if (!TryNormalizeHostPortInput(userInput, out string normalizedUrl))
         {
             Debug.LogWarning($"Invalid input. Please enter only host:port like 192.170.3.208:80.");
+            ShowStatusMessage("Failed: Invalid URL format", Color.red);
             return false;
         }
 
@@ -150,7 +177,7 @@ public class WebServerIPScript : MonoBehaviour
         var builder = new UriBuilder(uri)
         {
             Scheme = scheme,
-            Port = uri.IsDefaultPort ? -1 : uri.Port
+            Port = uri.Port
         };
 
         normalizedUrl = builder.Uri.ToString().TrimEnd('/');
@@ -236,6 +263,31 @@ public class WebServerIPScript : MonoBehaviour
         {
             signalingManager.Run();
         }
+
+        ShowStatusMessage($"Attempting to connect to: {webServerIP}", Color.yellow);
+    }
+
+    private void ShowStatusMessage(string message, Color color)
+    {
+        if (connectionStatusText != null)
+        {
+            if (statusCoroutine != null)
+            {
+                StopCoroutine(statusCoroutine);
+            }
+            connectionStatusText.color = color;
+            statusCoroutine = StartCoroutine(ShowStatusRoutine(message));
+        }
+    }
+
+    private IEnumerator ShowStatusRoutine(string message)
+    {
+        connectionStatusText.text = message;
+        connectionStatusText.gameObject.SetActive(true);
+
+        yield return new WaitForSeconds(statusDisplayDuration);
+
+        connectionStatusText.gameObject.SetActive(false);
     }
 
     private static bool AreUrlsEquivalent(string left, string right)
