@@ -10,60 +10,109 @@ public class RotationDataSender : DataChannelBase
     public string connectionId = "InputStream";
 
     public SingleConnection _singleConnection;
+
+    [Header("Send Settings")]
+    [Tooltip("Target send rate in Hz (messages per second, e.g. 60)")]
+    public float sendRateHz = 60f;
+
     private float _nextLogTime;
+    private float _nextSendTime;
 
     void Start()
     {
-        // _singleConnection = GetComponent<SingleConnection>();
+        if (_singleConnection == null)
+        {
+            _singleConnection = GetComponent<SingleConnection>();
+        }
+
+        EnableSensors();
+        InitiateDataConnection();
+    }
+
+    public void InitiateDataConnection()
+    {
         if (_singleConnection != null && !string.IsNullOrEmpty(connectionId))
         {
             _singleConnection.CreateConnection(connectionId);
-            Debug.Log($"[RotationDataSender] Requested connectionId: {connectionId}");
+            Debug.Log($"[RotationDataSender] Requesting connectionId: '{connectionId}'");
+        }
+    }
+
+    private void EnableSensors()
+    {
+        // Enable legacy gyro for Android/iOS devices
+        if (SystemInfo.supportsGyroscope)
+        {
+            Input.gyro.enabled = true;
+            Debug.Log("[RotationDataSender] Legacy Input.gyro enabled.");
         }
 
         if (AttitudeSensor.current != null)
         {
             InputSystem.EnableDevice(AttitudeSensor.current);
-            Debug.Log("[RotationDataSender] AttitudeSensor enabled.");
-        }
-        else
-        {
-            Debug.LogWarning("[RotationDataSender] No AttitudeSensor found!");
+            Debug.Log("[RotationDataSender] AttitudeSensor enabled via InputSystem.");
         }
 
         if (UnityEngine.InputSystem.Gyroscope.current != null)
+        {
             InputSystem.EnableDevice(UnityEngine.InputSystem.Gyroscope.current);
+        }
     }
 
     void Update()
     {
-        if (AttitudeSensor.current == null || !AttitudeSensor.current.enabled) return;
-
-        // Ensure the WebRTC channel is actually open to send data
         if (!IsConnected)
         {
             if (Time.time > _nextLogTime)
             {
-                Debug.Log("[RotationDataSender] Waiting for DataChannel to connect...");
-                _nextLogTime = Time.time + 2f;
+                Debug.Log($"[RotationDataSender] Waiting for DataChannel '{connectionId}' to connect. Retrying...");
+                _nextLogTime = Time.time + 3f;
+                InitiateDataConnection();
             }
             return;
         }
 
-        // Read the Quaternion directly from the valid attitude sensor
-        Quaternion q = AttitudeSensor.current.attitude.ReadValue();
+        if (Time.time < _nextSendTime) return;
+        _nextSendTime = Time.time + (1f / sendRateHz);
 
-        // Serialize the 4 floats into a compact comma-separated string
+        Quaternion q = Quaternion.identity;
+
+        // Try reading from AttitudeSensor first
+        if (AttitudeSensor.current != null && AttitudeSensor.current.enabled)
+        {
+            q = AttitudeSensor.current.attitude.ReadValue();
+        }
+
+        // Fallback to legacy Gyro if AttitudeSensor returned identity or zero
+        if ((q == Quaternion.identity || IsZeroQuaternion(q)) && Input.gyro.enabled)
+        {
+            q = Input.gyro.attitude;
+        }
+
+        // Ignore invalid zero quaternions
+        if (IsZeroQuaternion(q)) return;
+
+        // Compact 4-float string serialization
         string msg = $"{q.x:F5},{q.y:F5},{q.z:F5},{q.w:F5}";
-        
-        // Send the string over the WebRTC DataChannel
         Send(msg);
     }
 
-    // When the channel connects, we get this callback natively.
+    private static bool IsZeroQuaternion(Quaternion q)
+    {
+        return Mathf.Approximately(q.x, 0f) && Mathf.Approximately(q.y, 0f) &&
+               Mathf.Approximately(q.z, 0f) && Mathf.Approximately(q.w, 0f);
+    }
+
     protected override void OnOpen(string connectionId)
     {
         base.OnOpen(connectionId);
-        Debug.Log($"[RotationDataSender] WebRTC DataChannel Opened for {connectionId}");
+        Debug.Log($"[RotationDataSender] WebRTC DataChannel Opened for '{connectionId}'! Transmitting rotation data.");
+    }
+
+    protected override void OnClose(string connectionId)
+    {
+        base.OnClose(connectionId);
+        Debug.LogWarning($"[RotationDataSender] WebRTC DataChannel Closed for '{connectionId}'");
     }
 }
+

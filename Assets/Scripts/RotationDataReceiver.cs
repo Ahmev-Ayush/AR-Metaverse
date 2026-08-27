@@ -6,11 +6,17 @@ using System.Text;
 public class RotationDataReceiver : DataChannelBase
 {
     [Header("Target Camera Object")]
+    [Tooltip("Stereo Camera or XR Camera transform to rotate")]
     public Transform stereoCameraTarget;
 
-    [Header("Calibration Settings")]
-    [Tooltip("Adjust the starting direction.")]  //  For horizontal phone, try setting X to 90 or -90.
-    public Vector3 initialRotationOffset = new Vector3(90, 0, 0); // default is 90 on X to align with typical phone orientation, but adjust as needed for your setup.
+    [Header("Calibration & Smoothing")]
+    [Tooltip("Adjust starting direction (e.g. (90,0,0) for horizontal phone orientation)")]
+    public Vector3 initialRotationOffset = new Vector3(90, -130, 0);
+
+    [Tooltip("Smoothing factor for rotation interpolation (0 = instant, 15-25 = smooth VR tracking)")]
+    [Range(0f, 50f)]
+    public float smoothFactor = 20f;
+
     [Tooltip("Check this if Up/Down rotation is inverted.")]
     public bool invertPitch = true;
     [Tooltip("Check this if Left/Right rotation is inverted.")]
@@ -18,16 +24,35 @@ public class RotationDataReceiver : DataChannelBase
     [Tooltip("Check this if Tilt/Roll is inverted.")]
     public bool invertRoll = false;
 
+
     [Header("Connection Settings")]
     public string connectionId = "InputStream";
-
     public SingleConnection _singleConnection;
 
-    private Quaternion _newRot = Quaternion.identity;
-    private Quaternion _lastLogRot = Quaternion.identity;
+    private Quaternion _targetRot = Quaternion.identity;
+    private Quaternion _currentRot = Quaternion.identity;
     private float _nextLogTime;
+    private bool _hasInitiated;
 
-  
+    void Start()
+    {
+        if (_singleConnection == null)
+        {
+            _singleConnection = GetComponent<SingleConnection>();
+        }
+
+        InitiateConnection();
+    }
+
+    public void InitiateConnection()
+    {
+        if (_singleConnection != null && !string.IsNullOrEmpty(connectionId))
+        {
+            _singleConnection.CreateConnection(connectionId);
+            _hasInitiated = true;
+            Debug.Log($"[RotationDataReceiver] Requested connectionId: '{connectionId}'");
+        }
+    }
 
     void Update()
     {
@@ -35,37 +60,44 @@ public class RotationDataReceiver : DataChannelBase
         {
             if (Time.time > _nextLogTime)
             {
-                Debug.Log("[RotationDataReceiver] Waiting for DataChannel to connect...");
-                _nextLogTime = Time.time + 2f;
+                Debug.Log($"[RotationDataReceiver] Waiting for DataChannel '{connectionId}' to connect. Retrying...");
+                _nextLogTime = Time.time + 3f;
+                InitiateConnection();
             }
             return;
         }
 
-        // Apply it safely to the camera
-        if (Mathf.Abs(_newRot.x) > 0.01f || Mathf.Abs(_newRot.y) > 0.01f || Mathf.Abs(_newRot.z) > 0.01f || Mathf.Abs(_newRot.w) > 0.01f)
+        // Apply rotation with optional Slerp smoothing
+        if (smoothFactor > 0f)
         {
-            // Apply the initial rotation offset over the received rotation
-            Quaternion finalRotation = Quaternion.Euler(initialRotationOffset) * _newRot;
+            _currentRot = Quaternion.Slerp(_currentRot, _targetRot, Time.deltaTime * smoothFactor);
+        }
+        else
+        {
+            _currentRot = _targetRot;
+        }
 
-            if (stereoCameraTarget != null)
-            {
-                stereoCameraTarget.localRotation = finalRotation;
-            }
-            else
-            {
-                transform.localRotation = finalRotation;
-            }
+        Quaternion finalRotation = Quaternion.Euler(initialRotationOffset) * _currentRot;
+
+        if (stereoCameraTarget != null)
+        {
+            stereoCameraTarget.localRotation = finalRotation;
+        }
+        else
+        {
+            transform.localRotation = finalRotation;
         }
     }
 
-    // Called automatically by Unity Render Streaming when the string message arrives
+
     protected override void OnMessage(byte[] bytes)
     {
         base.OnMessage(bytes);
+
+        if (bytes == null || bytes.Length == 0) return;
         
         string msg = Encoding.UTF8.GetString(bytes);
 
-        // Deserializing the string back into a Quaternion
         string[] parts = msg.Split(',');
         if (parts.Length == 4)
         {
@@ -77,29 +109,36 @@ public class RotationDataReceiver : DataChannelBase
                 Quaternion rawRot = new Quaternion(-x, -y, -z, -w);
                 Vector3 euler = rawRot.eulerAngles;
 
-                // Normalize angles to -180 to 180 for reliable axis inversion
-                float pitch = euler.x;
-                float yaw = euler.y;
-                float roll = euler.z;
+                float pitch = euler.x > 180f ? euler.x - 360f : euler.x;
+                float yaw = euler.y > 180f ? euler.y - 360f : euler.y;
+                float roll = euler.z > 180f ? euler.z - 360f : euler.z;
 
-                if (pitch > 180f) pitch -= 360f;
-                if (yaw > 180f) yaw -= 360f;
-                if (roll > 180f) roll -= 360f;
-
-                // Invert specific axes based on inspector settings
                 if (invertPitch) pitch = -pitch;
                 if (invertYaw) yaw = -yaw;
                 if (invertRoll) roll = -roll;
 
-                _newRot = Quaternion.Euler(pitch, yaw, roll);
+                _targetRot = Quaternion.Euler(pitch, yaw, roll);
             }
         }
     }
 
-    // Called when the DataChannel is opened
     protected override void OnOpen(string connectionId)
     {
         base.OnOpen(connectionId);
-        Debug.Log($"[RotationDataReceiver] WebRTC DataChannel Opened for {connectionId}");
+        Debug.Log($"[RotationDataReceiver] WebRTC DataChannel Opened for '{connectionId}'");
+    }
+
+    protected override void OnClose(string connectionId)
+    {
+        base.OnClose(connectionId);
+        _hasInitiated = false;
+        Debug.LogWarning($"[RotationDataReceiver] WebRTC DataChannel Closed for '{connectionId}'");
+    }
+
+    public void RecalibrateBaseline()
+    {
+        _targetRot = Quaternion.identity;
+        _currentRot = Quaternion.identity;
+        Debug.Log("[RotationDataReceiver] Recalibrated head orientation baseline.");
     }
 }

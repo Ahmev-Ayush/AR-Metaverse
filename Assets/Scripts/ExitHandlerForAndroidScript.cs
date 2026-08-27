@@ -1,9 +1,15 @@
 using UnityEngine;
 using UnityEngine.InputSystem; // Required for New Input System
+using UnityEngine.SceneManagement;
 
 public class ExitHandlerForAndroidScript : MonoBehaviour
 {
     private InputAction _backButtonAction;
+    // public Button ipButton;
+    public GameObject urlUpdatePanel;
+    // button to reset the scene 
+    // public Button resetSceneButton;
+
 
     void Awake()
     {
@@ -33,5 +39,24 @@ public class ExitHandlerForAndroidScript : MonoBehaviour
     {
         Debug.Log("Back button pressed! Exiting app...");
         Application.Quit();
+    }
+
+    public void IpButtonShowHide()
+    {
+        if(urlUpdatePanel.activeSelf)
+        {
+            // ipButton.gameObject.SetActive(true);
+            urlUpdatePanel.SetActive(false);
+        }
+        else
+        {
+            // ipButton.gameObject.SetActive(false);
+            urlUpdatePanel.SetActive(true);
+        }
+    }
+
+    public void ResetApp()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 }

@@ -5,7 +5,7 @@ using UnityEngine;
 using TMPro;
 using Unity.RenderStreaming;
 
-public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
+public class WebServerIPScript : SignalingHandlerBase, IConnectHandler, IDisconnectHandler
 {
     [Header("Default Server Address")]
     [SerializeField] private string defaultWebSocketUrl = "192.170.2.137:80";
@@ -20,23 +20,45 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
     [Tooltip("If true, the script loads the previously saved URL from PlayerPrefs at startup.")]
     [SerializeField] private bool loadSavedUrlOnStart = true;
 
+    [Header("Auto Reconnect Settings")]
+    [SerializeField] private bool autoReconnectOnDisconnect = true;
+    [SerializeField] private float reconnectRetryInterval = 5f;
+
     [Header("Status UI")]
     [Tooltip("Text element to show connection status.")]
     [SerializeField] private TMP_Text connectionStatusText;
     [Tooltip("How long to show the status text before disappearing.")]
-    [SerializeField] private float statusDisplayDuration = 2f;
+    [SerializeField] private float statusDisplayDuration = 3f;
 
     [Tooltip("Current WebSocket URL used by the app.")]
     public string webServerIP;
 
     private Coroutine statusCoroutine;
+    private Coroutine reconnectCoroutine;
+    private bool isConnected;
 
     private void Start()
     {
+        if (signalingManager == null)
+        {
+#if UNITY_2023_1_OR_NEWER
+            signalingManager = FindAnyObjectByType<SignalingManager>();
+#else
+            signalingManager = FindObjectOfType<SignalingManager>();
+#endif
+        }
+
         InitializeServerUrl();
+        
         if (signalingManager != null)
         {
             signalingManager.AddSignalingHandler(this);
+        }
+
+        if (serverAddressInputField != null)
+        {
+            serverAddressInputField.onEndEdit.RemoveListener(OnInputFieldEndEdit);
+            serverAddressInputField.onEndEdit.AddListener(OnInputFieldEndEdit);
         }
     }
 
@@ -46,11 +68,59 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         {
             signalingManager.RemoveSignalingHandler(this);
         }
+
+        if (serverAddressInputField != null)
+        {
+            serverAddressInputField.onEndEdit.RemoveListener(OnInputFieldEndEdit);
+        }
+    }
+
+    private void OnInputFieldEndEdit(string value)
+    {
+        ApplyAddressFromInputField();
     }
 
     public void OnConnect(SignalingEventData eventData)
     {
-        ShowStatusMessage("connected!", Color.green);
+        isConnected = true;
+        if (reconnectCoroutine != null)
+        {
+            StopCoroutine(reconnectCoroutine);
+            reconnectCoroutine = null;
+        }
+        ShowStatusMessage("Connected to Server!", Color.green);
+    }
+
+    public void OnDisconnect(SignalingEventData eventData)
+    {
+        isConnected = false;
+        ShowStatusMessage("Disconnected from Server", Color.red);
+        
+        if (autoReconnectOnDisconnect && gameObject.activeInHierarchy && reconnectCoroutine == null)
+        {
+            reconnectCoroutine = StartCoroutine(AutoReconnectRoutine());
+        }
+    }
+
+    private IEnumerator AutoReconnectRoutine()
+    {
+        while (!isConnected)
+        {
+            yield return new WaitForSeconds(reconnectRetryInterval);
+            if (!isConnected && signalingManager != null)
+            {
+                ShowStatusMessage("Attempting Reconnection...", Color.yellow);
+                if (!signalingManager.Running)
+                {
+                    signalingManager.Run();
+                }
+                else
+                {
+                    ApplyUrlToSignalingManager();
+                }
+            }
+        }
+        reconnectCoroutine = null;
     }
 
     private void InitializeServerUrl()
@@ -59,33 +129,41 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
 
         if (loadSavedUrlOnStart && PlayerPrefs.HasKey(playerPrefsKey))
         {
-            candidateUrl = PlayerPrefs.GetString(playerPrefsKey);
+            string saved = PlayerPrefs.GetString(playerPrefsKey);
+            if (!string.IsNullOrWhiteSpace(saved))
+            {
+                candidateUrl = saved;
+            }
         }
 
         if (!TryNormalizeWebSocketUrl(candidateUrl, out webServerIP))
         {
-            webServerIP = defaultWebSocketUrl;
-            Debug.LogWarning($"Invalid saved/default URL. Falling back to '{webServerIP}'.");
+            TryNormalizeWebSocketUrl(defaultWebSocketUrl, out webServerIP);
+            Debug.LogWarning($"Invalid saved URL '{candidateUrl}'. Falling back to default '{webServerIP}'.");
         }
 
-        Debug.Log($"WebSocket Server URL: {webServerIP}");
+        Debug.Log($"WebSocket Server URL initialized to: {webServerIP}");
 
         ApplyUrlToSignalingManager();
 
-// #if TMP_PRESENT
         if (serverAddressInputField != null)
         {
             serverAddressInputField.text = ToHostPortDisplay(webServerIP);
         }
-// #endif
     }
 
     public bool SetWebSocketAddress(string userInput)
     {
-        if (!TryNormalizeHostPortInput(userInput, out string normalizedUrl))
+        if (string.IsNullOrWhiteSpace(userInput))
         {
-            Debug.LogWarning($"Invalid input. Please enter only host:port like 192.170.3.208:80.");
-            ShowStatusMessage("Failed: Invalid URL format", Color.red);
+            ShowStatusMessage("Failed: Input is empty", Color.red);
+            return false;
+        }
+
+        if (!TryNormalizeWebSocketUrl(userInput, out string normalizedUrl))
+        {
+            Debug.LogWarning($"Invalid input: '{userInput}'. Expected IP or IP:Port (e.g. 192.168.1.50:80 or ws://192.168.1.50:80)");
+            ShowStatusMessage("Failed: Invalid IP/URL format", Color.red);
             return false;
         }
 
@@ -93,22 +171,19 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         PlayerPrefs.SetString(playerPrefsKey, webServerIP);
         PlayerPrefs.Save();
 
-        Debug.Log($"Updated WebSocket Server URL: {webServerIP}");
+        Debug.Log($"Updated WebSocket Server URL to: {webServerIP}");
 
         ApplyUrlToSignalingManager();
 
-// #if TMP_PRESENT
         string displayAddress = ToHostPortDisplay(webServerIP);
         if (serverAddressInputField != null && serverAddressInputField.text != displayAddress)
         {
             serverAddressInputField.text = displayAddress;
         }
-// #endif
 
         return true;
     }
 
-// #if TMP_PRESENT
     public void ApplyAddressFromInputField()
     {
         if (serverAddressInputField == null)
@@ -119,7 +194,6 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
 
         SetWebSocketAddress(serverAddressInputField.text);
     }
-// #endif
 
     public void ResetToDefaultAddress()
     {
@@ -129,6 +203,10 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
             PlayerPrefs.SetString(playerPrefsKey, webServerIP);
             PlayerPrefs.Save();
             ApplyUrlToSignalingManager();
+            if (serverAddressInputField != null)
+            {
+                serverAddressInputField.text = ToHostPortDisplay(webServerIP);
+            }
             Debug.Log($"Reset WebSocket Server URL to default: {webServerIP}");
         }
         else
@@ -137,7 +215,7 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         }
     }
 
-    private static bool TryNormalizeWebSocketUrl(string input, out string normalizedUrl)
+    public static bool TryNormalizeWebSocketUrl(string input, out string normalizedUrl)
     {
         normalizedUrl = string.Empty;
 
@@ -148,7 +226,17 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
 
         string candidate = input.Trim();
 
-        if (!candidate.Contains("://"))
+        // Strip leading http/https/ws/wss if present to extract pure host/port or re-format cleanly
+        if (candidate.StartsWith("http://", StringComparison.OrdinalIgnoreCase))
+        {
+            candidate = "ws://" + candidate.Substring(7);
+        }
+        else if (candidate.StartsWith("https://", StringComparison.OrdinalIgnoreCase))
+        {
+            candidate = "wss://" + candidate.Substring(8);
+        }
+        else if (!candidate.StartsWith("ws://", StringComparison.OrdinalIgnoreCase) && 
+                 !candidate.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
         {
             candidate = "ws://" + candidate;
         }
@@ -159,47 +247,25 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         }
 
         string scheme = uri.Scheme;
-
-        if (scheme == "http")
+        if (scheme != "ws" && scheme != "wss")
         {
             scheme = "ws";
         }
-        else if (scheme == "https")
-        {
-            scheme = "wss";
-        }
 
-        if (scheme != "ws" && scheme != "wss")
+        int port = uri.Port;
+        if (port == -1)
         {
-            return false;
+            port = 80; // default signaling port
         }
 
         var builder = new UriBuilder(uri)
         {
             Scheme = scheme,
-            Port = uri.Port
+            Port = port
         };
 
         normalizedUrl = builder.Uri.ToString().TrimEnd('/');
         return true;
-    }
-
-    private static bool TryNormalizeHostPortInput(string input, out string normalizedUrl)
-    {
-        normalizedUrl = string.Empty;
-
-        if (string.IsNullOrWhiteSpace(input))
-        {
-            return false;
-        }
-
-        string candidate = input.Trim();
-        if (candidate.Contains("://"))
-        {
-            return false;
-        }
-
-        return TryNormalizeWebSocketUrl("ws://" + candidate, out normalizedUrl);
     }
 
     private static string ToHostPortDisplay(string wsUrl)
@@ -212,12 +278,11 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         string value = wsUrl.Trim();
         if (value.StartsWith("ws://", StringComparison.OrdinalIgnoreCase))
         {
-            return value.Substring(5).TrimEnd('/');
+            value = value.Substring(5);
         }
-
-        if (value.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
+        else if (value.StartsWith("wss://", StringComparison.OrdinalIgnoreCase))
         {
-            return value.Substring(6).TrimEnd('/');
+            value = value.Substring(6);
         }
 
         return value.TrimEnd('/');
@@ -236,10 +301,17 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         {
             if (AreUrlsEquivalent(wsSettings.url, webServerIP))
             {
+                if (!signalingManager.Running)
+                {
+                    signalingManager.Run();
+                }
                 return;
             }
 
-            clonedIceServers = wsSettings.iceServers.Select(server => server.Clone()).ToArray();
+            if (wsSettings.iceServers != null)
+            {
+                clonedIceServers = wsSettings.iceServers.Select(server => server.Clone()).ToArray();
+            }
         }
 
         bool wasRunning = signalingManager.Running;
@@ -253,18 +325,17 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         {
             signalingManager.SetSignalingSettings(new WebSocketSignalingSettings(webServerIP, clonedIceServers));
         }
-        catch (InvalidOperationException)
+        catch (Exception ex)
         {
-            Debug.LogWarning("Cannot update signaling URL while SignalingManager is running. Enable restartSignalingWhenAddressChanges or stop signaling first.");
-            return;
+            Debug.LogWarning($"Exception setting signaling settings: {ex.Message}");
         }
 
-        if (wasRunning && restartSignalingWhenAddressChanges)
+        if ((wasRunning || !signalingManager.Running) && restartSignalingWhenAddressChanges)
         {
             signalingManager.Run();
         }
 
-        ShowStatusMessage($"Attempting to connect to: {webServerIP}", Color.yellow);
+        ShowStatusMessage($"Connecting to: {ToHostPortDisplay(webServerIP)}", Color.yellow);
     }
 
     private void ShowStatusMessage(string message, Color color)
@@ -305,3 +376,4 @@ public class WebServerIPScript : SignalingHandlerBase, IConnectHandler
         return string.Equals(leftNormalized, rightNormalized, StringComparison.OrdinalIgnoreCase);
     }
 }
+
