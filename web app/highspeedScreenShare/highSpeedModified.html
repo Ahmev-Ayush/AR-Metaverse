@@ -83,7 +83,7 @@
             letter-spacing: 0.05em;
         }
 
-        input[type="text"], select {
+        input[type="text"], input[type="number"], select {
             width: 100%;
             padding: 12px 16px;
             border-radius: 8px;
@@ -96,8 +96,24 @@
             transition: border-color 0.2s;
         }
 
-        input[type="text"]:focus, select:focus {
+        input:focus, select:focus {
             border-color: var(--accent-color);
+        }
+
+        .flex-row {
+            display: flex;
+            gap: 12px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 12px;
+        }
+
+        .grid-3 label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
         }
 
         .btn-group {
@@ -155,11 +171,6 @@
             max-height: 320px;
             object-fit: contain;
         }
-
-        .flex-row {
-            display: flex;
-            gap: 12px;
-        }
     </style>
 </head>
 <body>
@@ -178,13 +189,29 @@
         </div>
 
         <div class="form-group">
-            <label for="qualitySelect">Stream Bitrate & Target Quality</label>
-            <select id="qualitySelect">
-                <option value="25000" selected>Super Ultra High Speed (25 Mbps - 60 FPS)</option>  <!-- 25000-->
-                <option value="15000">Ultra High Speed (15 Mbps - 60 FPS)</option>  <!-- 15000-->
-                <option value="10000">High Quality (10 Mbps - 60 FPS)</option> <!-- 10000-->
-                <option value="5000">Balanced (5 Mbps - 30 FPS)</option>  <!-- 5000-->
-                <option value="2500">Low Latency Saver (2.5 Mbps)</option>
+            <label>Stream Bitrate Limits (kbps)</label>
+            <div class="grid-3">
+                <div>
+                    <label>Lower / Min</label>
+                    <input type="number" id="minBitrate" value="2500" step="500">
+                </div>
+                <div>
+                    <label>Initial / Target</label>
+                    <input type="number" id="targetBitrate" value="5000" step="500">
+                </div>
+                <div>
+                    <label>Upper / Max</label>
+                    <input type="number" id="maxBitrate" value="10000" step="500">
+                </div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label for="contentHintSelect">Optimization Mode (Content Hint)</label>
+            <select id="contentHintSelect">
+                <option value="motion" selected>Motion (Prioritizes framerate/smoothness)</option>
+                <option value="detail">Detail (Prioritizes crispness/resolution)</option>
+                <option value="text">Text (Best for reading code/documents)</option>
             </select>
         </div>
 
@@ -212,9 +239,13 @@
         const statusBadge = document.getElementById('statusBadge');
         const wsAddressInput = document.getElementById('wsAddressInput');
         const applyWsBtn = document.getElementById('applyWsBtn');
-        const qualitySelect = document.getElementById('qualitySelect');
         const startBtn = document.getElementById('startBtn');
         const connectBtn = document.getElementById('connectBtn');
+        
+        const minBitrateInput = document.getElementById('minBitrate');
+        const targetBitrateInput = document.getElementById('targetBitrate');
+        const maxBitrateInput = document.getElementById('maxBitrate');
+        const contentHintSelect = document.getElementById('contentHintSelect');
 
         // Load saved server URL
         const savedUrl = localStorage.getItem(STORAGE_KEY) || DEFAULT_ADDRESS;
@@ -252,15 +283,15 @@
             return trimmed;
         }
 
-        function setHighBitrate(sdp, bitrateKbps) {
+        function setHighBitrate(sdp, maxBitrateKbps) {
             let lines = sdp.split('\r\n');
             let newLines = [];
             
             for (let i = 0; i < lines.length; i++) {
                 newLines.push(lines[i]);
                 if (lines[i].indexOf('m=video') !== -1) {
-                    newLines.push("b=AS:" + bitrateKbps);
-                    newLines.push("b=TIAS:" + (bitrateKbps * 1000));
+                    newLines.push("b=AS:" + maxBitrateKbps);
+                    newLines.push("b=TIAS:" + (maxBitrateKbps * 1000));
                 }
             }
             return newLines.join('\r\n');
@@ -296,10 +327,9 @@
                 try {
                     const parsed = JSON.parse(message.data);
                     
-                    // CRITICAL FIX: Only process signaling messages targeted for ScreenStream
                     const targetId = parsed.data ? parsed.data.connectionId : (parsed.connectionId || parsed.from);
                     if (targetId && targetId !== 'ScreenStream' && targetId !== 'screenshare') {
-                        return; // Ignore messages meant for windowsStream or inputStream!
+                        return; 
                     }
 
                     if (parsed.type === 'answer') {
@@ -341,8 +371,7 @@
 
         startBtn.onclick = async () => {
             try {
-                const targetBitrateKbps = parseInt(qualitySelect.value, 10);
-                const targetFps = targetBitrateKbps >= 10000 ? 60 : 30;
+                const targetFps = parseInt(maxBitrateInput.value, 10) >= 10000 ? 60 : 30;
 
                 const constraints = {
                     video: {
@@ -356,13 +385,17 @@
 
                 localStream = await navigator.mediaDevices.getDisplayMedia(constraints);
 
+                // Apply the selected content hint (motion, detail, text)
+                const selectedHint = contentHintSelect.value;
                 localStream.getVideoTracks().forEach(track => {
-                    if ('contentHint' in track) track.contentHint = 'motion';
+                    if ('contentHint' in track) {
+                        track.contentHint = selectedHint;
+                    }
                 });
 
                 document.getElementById('localVideo').srcObject = localStream;
                 connectBtn.disabled = false;
-                updateStatus(`Screen Captured @ ${targetFps} FPS`, 'info');
+                updateStatus(`Screen Captured @ ~${targetFps} FPS (${selectedHint})`, 'info');
             } catch (e) {
                 console.error(e);
                 alert("Screen capture failed. Ensure HTTPS or localhost is used.");
@@ -387,13 +420,24 @@
 
             localStream.getTracks().forEach(track => peerConnection.addTrack(track, localStream));
 
-            const targetBitrate = parseInt(qualitySelect.value, 10) * 1000;
+            const minBitrate = parseInt(minBitrateInput.value, 10) * 1000;
+            const maxBitrate = parseInt(maxBitrateInput.value, 10) * 1000;
+
             const senders = peerConnection.getSenders();
             senders.forEach(sender => {
                 if (sender.track && sender.track.kind === 'video') {
                     const params = sender.getParameters();
                     if (!params.encodings) params.encodings = [{}];
-                    params.encodings[0].maxBitrate = targetBitrate;
+                    
+                    // Apply bitrate limits to WebRTC encoding parameters
+                    params.encodings[0].maxBitrate = maxBitrate;
+                    
+                    // NOTE: minBitrate isn't fully supported by all browsers via standard encoding parameters, 
+                    // but we include it here where standardly applicable.
+                    if ('minBitrate' in params.encodings[0]) {
+                        params.encodings[0].minBitrate = minBitrate;
+                    }
+                    
                     sender.setParameters(params);
                 }
             });
@@ -412,8 +456,10 @@
             };
 
             const offer = await peerConnection.createOffer();
-            const bitrateKbps = parseInt(qualitySelect.value, 10);
-            const highSpeedSdp = setHighBitrate(offer.sdp, bitrateKbps);
+            const maxBitrateKbps = parseInt(maxBitrateInput.value, 10);
+            
+            // Adjust SDP for the max upper bandwidth limit
+            const highSpeedSdp = setHighBitrate(offer.sdp, maxBitrateKbps);
 
             await peerConnection.setLocalDescription({ type: 'offer', sdp: highSpeedSdp });
 

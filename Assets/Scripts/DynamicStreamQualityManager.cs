@@ -12,20 +12,20 @@ public class DynamicStreamQualityManager : MonoBehaviour
 {
     [Header("Target Bitrate Limits (Kbps)")]
     [Tooltip("Minimum bitrate for weak connections (e.g. 2000 Kbps = 2 Mbps)")]
-    public uint minBitrateKbps = 2000;
+    public uint minBitrateKbps = 30000; //5000; // 5000 
 
     [Tooltip("Maximum bitrate for strong connections (e.g. 15000 Kbps = 15 Mbps)")]
-    public uint maxBitrateKbps = 15000;
+    public uint maxBitrateKbps = 100000; //10000;
 
     [Tooltip("Initial bitrate tier to start with on connection")]
-    public uint initialBitrateKbps = 5000;
+    public uint initialBitrateKbps = 70000; //7500;
 
     [Header("Quality Adjustment Controls")]
     [Tooltip("Step size (Kbps) when upgrading quality after stable connection")]
-    public uint stepUpKbps = 2000;
+    public uint stepUpKbps = 25000; //2000;
 
     [Tooltip("Step size (Kbps) when dropping quality due to lag or frame drops")]
-    public uint stepDownKbps = 3000;
+    public uint stepDownKbps = 25000; //3000;
 
     [Tooltip("Evaluation interval in seconds")]
     public float evaluationIntervalSeconds = 3f;

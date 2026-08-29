@@ -1,6 +1,7 @@
 using UnityEngine;
 using Unity.RenderStreaming;
 using System.Text;
+using TMPro;
 
 [RequireComponent(typeof(SingleConnection))]
 public class RotationDataReceiver : DataChannelBase
@@ -11,7 +12,7 @@ public class RotationDataReceiver : DataChannelBase
 
     [Header("Calibration & Smoothing")]
     [Tooltip("Adjust starting direction (e.g. (90,0,0) for horizontal phone orientation)")]
-    public Vector3 initialRotationOffset = new Vector3(90, -130, 0);
+    public Vector3 initialRotationOffset = new Vector3(90, 0, 0);
 
     [Tooltip("Smoothing factor for rotation interpolation (0 = instant, 15-25 = smooth VR tracking)")]
     [Range(0f, 50f)]
@@ -23,6 +24,12 @@ public class RotationDataReceiver : DataChannelBase
     public bool invertYaw = true;
     [Tooltip("Check this if Tilt/Roll is inverted.")]
     public bool invertRoll = false;
+
+    [Header("UI Input Fields (Dynamic Offset)")]
+    [Tooltip("Assign the TMPro Input Fields from your Canvas here")]
+    // public TMP_InputField inputFieldX;
+    public TMP_InputField inputFieldY;
+    // public TMP_InputField inputFieldZ;
 
 
     [Header("Connection Settings")]
@@ -41,6 +48,10 @@ public class RotationDataReceiver : DataChannelBase
             _singleConnection = GetComponent<SingleConnection>();
         }
 
+        InitializeUIFields();
+
+        if (inputFieldY != null) inputFieldY.onEndEdit.AddListener(UpdateOffsetFromUI);
+
         InitiateConnection();
     }
 
@@ -53,6 +64,8 @@ public class RotationDataReceiver : DataChannelBase
             Debug.Log($"[RotationDataReceiver] Requested connectionId: '{connectionId}'");
         }
     }
+
+
 
     void Update()
     {
@@ -140,5 +153,23 @@ public class RotationDataReceiver : DataChannelBase
         _targetRot = Quaternion.identity;
         _currentRot = Quaternion.identity;
         Debug.Log("[RotationDataReceiver] Recalibrated head orientation baseline.");
+    }
+
+    private void InitializeUIFields()
+    {
+        if (inputFieldY != null) inputFieldY.text = initialRotationOffset.y.ToString();
+    }
+
+    public void UpdateOffsetFromUI(string rawInputText)
+    {
+        if (float.TryParse(rawInputText, out float parsedY))
+        {
+            initialRotationOffset.y = parsedY;
+            Debug.Log($"[RotationDataReceiver] Dynamic Y-offset changed to: {parsedY}");
+        }
+        else
+        {
+            Debug.LogWarning($"[RotationDataReceiver] Failed to parse input text '{rawInputText}' into a number.");
+        }
     }
 }
