@@ -111,4 +111,10 @@ Since InputRemoting is failing you completely, I have bypassed it and hooked dir
 - In AndroidAppScene 2 and windowsAppScene 3, using gyrosensor of android phone to control sterocamera on windows successfully implemented 
 - How? Created another single connection base for one way communication (only for input communication)
 
+## 🗓️ 28-08-2026 
+
+**What I Did:**
+- Testing and debugging AR MetaVerse scene for windows and android app with Unity Render Streaming
+
+
 <!-- Keep adding entries as you work -->
